@@ -1,0 +1,106 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# FastAPI / Uvicorn
+.env
+.env.local
+.env.*.local
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.postgres
+
+# ML Models
+*.h5
+*.pkl
+*.joblib
+*.pt
+models/checkpoints/
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+.gradle/
+*.iml
+*.xcconfig
+
+# Node/npm (if used)
+node_modules/
+package-lock.json
+npm-debug.log
+
+# Docker
+.dockerignore
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# OS
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Misc
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+config/local*
