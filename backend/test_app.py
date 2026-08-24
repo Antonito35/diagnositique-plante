@@ -39,13 +39,11 @@ class TestHealthEndpoints:
         assert "model" in data
 
     def test_root_endpoint(self):
-        """Test root / endpoint"""
+        """Test root / endpoint returns the web interface"""
         response = client.get("/")
         assert response.status_code == 200
-        data = response.json()
-        assert "name" in data
-        assert data["name"] == "PlantDiag API"
-        assert "docs" in data
+        # Root now returns HTML interface, not JSON
+        assert "PlantDiag" in response.text or "html" in response.text.lower()
 
 
 class TestDiagnosisEndpoints:
