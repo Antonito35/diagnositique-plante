@@ -4,13 +4,14 @@ FastAPI backend for ML-powered plant disease classification
 """
 
 import logging
+import random
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, status
+from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Path, Body, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import numpy as np
 from io import BytesIO
 from PIL import Image
@@ -57,9 +58,9 @@ class HistoryItem(BaseModel):
 
 class ParcelRequest(BaseModel):
     """Request model for parcel creation"""
-    name: str
-    crop_type: Optional[str] = None
-    area_hectares: Optional[float] = None
+    name: str = Field(..., min_length=1, max_length=255)
+    crop_type: Optional[str] = Field(None, max_length=255)
+    area_hectares: Optional[float] = Field(None, gt=0)
 
 
 class ParcelResponse(BaseModel):
@@ -242,7 +243,7 @@ async def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "model": "MobileNetV2" if classifier else "not_loaded"
     }
 
@@ -266,8 +267,8 @@ async def root():
 @app.post("/api/v1/diagnose", response_model=DiagnosisResponse, tags=["Diagnosis"])
 async def diagnose(
     file: UploadFile = File(...),
-    user_id: int = None,
-    parcel_id: Optional[int] = None
+    user_id: Optional[int] = Query(None),
+    parcel_id: Optional[int] = Query(None)
 ):
     """
     Diagnose plant disease from photo
@@ -278,9 +279,15 @@ async def diagnose(
 
     Returns diagnosis with confidence, severity, and treatment recommendations
     """
-    start_time = datetime.utcnow()
+    start_time = datetime.now(timezone.utc)
 
     try:
+        if classifier is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="ML model is not loaded"
+            )
+
         # Process image
         image_array = await process_image(file)
 
@@ -289,7 +296,7 @@ async def diagnose(
         disease_info = classifier.get_disease_info(disease_name)
 
         # Calculate processing time
-        processing_time = (datetime.utcnow() - start_time).total_seconds() * 1000
+        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
         # Log diagnosis
         logger.info(
@@ -303,10 +310,12 @@ async def diagnose(
             severity=disease_info["severity"],
             treatments=disease_info["treatments"],
             recommendation=disease_info["recommendation"],
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             processing_time_ms=processing_time
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Diagnosis failed: {str(e)}")
         raise HTTPException(
@@ -320,11 +329,11 @@ async def diagnose(
 # ============================================================================
 
 @app.get("/api/v1/history/{user_id}", response_model=list[HistoryItem], tags=["History"])
-async def get_history(user_id: int, limit: int = 10):
+async def get_history(user_id: int = Path(..., gt=0), limit: int = Query(10, ge=1, le=100)):
     """
     Retrieve diagnosis history for a user
 
-    Returns last `limit` diagnoses (default 10)
+    Returns last `limit` diagnoses (default 10, max 100)
     """
     logger.info(f"Retrieving history for user {user_id}")
 
@@ -335,7 +344,7 @@ async def get_history(user_id: int, limit: int = 10):
             diagnosis="Rouille du blé",
             confidence=0.92,
             severity="Moderate",
-            timestamp=(datetime.utcnow()).isoformat(),
+            timestamp=(datetime.now(timezone.utc)).isoformat(),
             parcel_id=1
         )
         for i in range(1, min(limit + 1, 6))
@@ -349,7 +358,7 @@ async def get_history(user_id: int, limit: int = 10):
 # ============================================================================
 
 @app.get("/api/v1/parcels", response_model=list[ParcelResponse], tags=["Parcels"])
-async def list_parcels(user_id: int):
+async def list_parcels(user_id: int = Query(..., gt=0)):
     """List all parcels for a user"""
     logger.info(f"Listing parcels for user {user_id}")
 
@@ -360,20 +369,20 @@ async def list_parcels(user_id: int):
             name="Champ Nord",
             crop_type="Blé",
             area_hectares=5.2,
-            created_at=datetime.utcnow().isoformat()
+            created_at=datetime.now(timezone.utc).isoformat()
         ),
         ParcelResponse(
             id=2,
             name="Champ Est",
             crop_type="Maïs",
             area_hectares=3.8,
-            created_at=datetime.utcnow().isoformat()
+            created_at=datetime.now(timezone.utc).isoformat()
         )
     ]
 
 
 @app.post("/api/v1/parcels", response_model=ParcelResponse, tags=["Parcels"])
-async def create_parcel(user_id: int, parcel: ParcelRequest):
+async def create_parcel(user_id: int = Query(..., gt=0), parcel: ParcelRequest = Body(...)):
     """Create a new parcel"""
     logger.info(f"Creating parcel '{parcel.name}' for user {user_id}")
 
@@ -383,7 +392,7 @@ async def create_parcel(user_id: int, parcel: ParcelRequest):
         name=parcel.name,
         crop_type=parcel.crop_type,
         area_hectares=parcel.area_hectares,
-        created_at=datetime.utcnow().isoformat()
+        created_at=datetime.now(timezone.utc).isoformat()
     )
 
 
@@ -392,7 +401,7 @@ async def create_parcel(user_id: int, parcel: ParcelRequest):
 # ============================================================================
 
 @app.get("/api/v1/sensors/{parcel_id}", response_model=SensorData, tags=["Sensors"])
-async def get_sensor_data(parcel_id: int):
+async def get_sensor_data(parcel_id: int = Path(..., gt=0)):
     """
     Get simulated IoT sensor data for a parcel
 
@@ -401,7 +410,6 @@ async def get_sensor_data(parcel_id: int):
     logger.info(f"Retrieving sensor data for parcel {parcel_id}")
 
     # Simulate sensor readings
-    import random
     temperature = 18 + random.uniform(-3, 5)  # 15-23°C
     humidity = 60 + random.uniform(-10, 20)    # 50-80%
     soil_moisture = 45 + random.uniform(-5, 15) # 40-60%
@@ -411,7 +419,7 @@ async def get_sensor_data(parcel_id: int):
         temperature_celsius=round(temperature, 1),
         humidity_percent=round(humidity, 1),
         soil_moisture_percent=round(soil_moisture, 1),
-        timestamp=datetime.utcnow().isoformat()
+        timestamp=datetime.now(timezone.utc).isoformat()
     )
 
 
@@ -427,7 +435,7 @@ async def get_status():
         "model": "loaded" if classifier else "loading",
         "database": "connected",
         "cache": "connected",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 
@@ -476,21 +484,12 @@ async def get_endpoints_doc():
 # ERROR HANDLERS
 # ============================================================================
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    logger.error(f"HTTP Exception: {exc.detail}")
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"error": exc.detail, "timestamp": datetime.utcnow().isoformat()}
-    )
-
-
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     logger.error(f"Unhandled exception: {str(exc)}")
     return JSONResponse(
         status_code=500,
-        content={"error": "Internal server error", "timestamp": datetime.utcnow().isoformat()}
+        content={"detail": "Internal server error", "timestamp": datetime.now(timezone.utc).isoformat()}
     )
 
 

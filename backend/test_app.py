@@ -10,8 +10,20 @@ import numpy as np
 from io import BytesIO
 from PIL import Image
 
-# Create test client
-client = TestClient(app)
+# Create test client fixture
+@pytest.fixture(scope="session")
+def _client():
+    """Create test client with proper lifespan initialization"""
+    with TestClient(app) as test_client:
+        yield test_client
+
+
+# Make client available globally for test classes
+@pytest.fixture(scope="session", autouse=True)
+def _setup_client(_client):
+    """Setup client for all tests"""
+    global client
+    client = _client
 
 
 class TestHealthEndpoints:
