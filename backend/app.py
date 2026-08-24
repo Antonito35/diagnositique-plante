@@ -9,8 +9,9 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Optional
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Path, Body, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import numpy as np
 from io import BytesIO
@@ -212,6 +213,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Serve static files
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 # ============================================================================
 # UTILITY FUNCTIONS
 # ============================================================================
@@ -250,7 +256,11 @@ async def health_check():
 
 @app.get("/", tags=["Info"])
 async def root():
-    """API root information"""
+    """Serve the web interface"""
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    index_file = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
     return {
         "name": "PlantDiag API",
         "version": "1.0.0",
