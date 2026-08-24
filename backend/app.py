@@ -95,49 +95,49 @@ class DiseaseClassifier:
     def __init__(self):
         # Disease database with symptoms and treatments
         self.diseases_db = {
-            "Rouille du blé": {
+            "Taches rouges sur le blé": {
                 "severity": "Moderate",
-                "recommendation": "Traitez rapidement car la maladie se propage vite d'une plante à l'autre",
+                "recommendation": "Attention ! Traitez vite, ça se propage très vite",
                 "treatments": {
-                    "preventive": "Laissez reposer la terre 1-2 ans avant de replanter du blé au même endroit. Enlevez les résidus de récolte précédente.",
-                    "biological": "Pulvérisez avec des bactéries utiles (non toxique pour vous). À faire le matin ou le soir quand il fait frais.",
-                    "conventional": "Utilisez un produit de traitement chimique spécialisé (en spray). Suivez le mode d'emploi à la lettre."
+                    "preventive": "L'année prochaine, mettez une autre culture à cette place. Brûlez les débris de récolte.",
+                    "biological": "Pulvérisez un produit naturel sans danger. À faire le matin.",
+                    "conventional": "Achetez un produit à la quincaillerie agricole et suivez les instructions."
                 }
             },
-            "Mildiou du raisin": {
+            "Maladie blanche du raisin": {
                 "severity": "Severe",
-                "recommendation": "C'est urgent ! La maladie peut détruire toute votre récolte en quelques jours",
+                "recommendation": "URGENT ! Agissez tout de suite sinon vous perdez votre récolte",
                 "treatments": {
-                    "preventive": "Taillez bien vos vignes pour que l'air circule. Arrosez le matin, pas le soir. Évitez que les feuilles restent mouillées.",
-                    "biological": "Pulvérisez un mélange de cuivre et soufre naturels. Facile à utiliser et sans danger pour votre santé.",
-                    "conventional": "Utilisez un produit de traitement contre le mildiou en suivant les instructions. Traitez toutes les feuilles."
+                    "preventive": "Taillez pour que l'air passe bien. Arrosez le matin seulement.",
+                    "biological": "Pulvérisez du produit naturel à base de soufre ou de cuivre.",
+                    "conventional": "Allez à la quincaillerie acheter un traitement spécialisé et appliquez-le."
                 }
             },
-            "Oïdium": {
+            "Poudre blanche sur les feuilles": {
                 "severity": "Mild",
-                "recommendation": "C'est bénin mais faites quand même quelque chose pour l'arrêter",
+                "recommendation": "C'est pas grave mais traitez quand même",
                 "treatments": {
-                    "preventive": "Laissez de l'espace entre les plants pour que l'air passe. Ne mettez pas trop d'engrais azoté.",
-                    "biological": "Pulvérisez du soufre naturel (très sûr). Vous pouvez aussi utiliser des huiles naturelles qui suffoquent le champignon.",
-                    "conventional": "Un simple produit anti-oïdium du commerce fonctionne bien. À appliquer régulièrement."
+                    "preventive": "Espacez bien vos plants pour l'aération. N'en faites pas trop avec l'engrais.",
+                    "biological": "Pulvérisez du produit naturel facile à trouver.",
+                    "conventional": "Un produit du commerce va bien marcher."
                 }
             },
-            "Septoriose": {
+            "Taches brunes sur les feuilles": {
                 "severity": "Moderate",
-                "recommendation": "Traitez rapidement avant que ça ne s'aggrave",
+                "recommendation": "Agissez maintenant avant que ça empire",
                 "treatments": {
-                    "preventive": "Attendez 3 ans avant de remettre la même culture au même endroit. Brûlez ou enlevez les feuilles malades.",
-                    "biological": "Pulvérisez des bactéries utiles qui combattent la maladie naturellement.",
-                    "conventional": "Utilisez un produit de traitement classique contre les champignons. À renouveler selon les instructions."
+                    "preventive": "L'année prochaine changez de culture ici. Enlevez les feuilles malades.",
+                    "biological": "Pulvérisez du produit naturel.",
+                    "conventional": "Utilisez un produit de traitement normal."
                 }
             },
-            "Feuille saine": {
+            "Plante en bonne santé": {
                 "severity": "Mild",
-                "recommendation": "Votre plante va bien ! Continuez juste à bien l'observer",
+                "recommendation": "Très bien ! Continuez à surveiller régulièrement",
                 "treatments": {
-                    "preventive": "Vérifiez régulièrement l'état de vos plantes pour détecter les problèmes tôt.",
-                    "biological": "Entourez-vous d'insectes utiles et d'autres plantes pour renforcer la nature.",
-                    "conventional": "Vous n'avez pas besoin de traitement pour le moment."
+                    "preventive": "Regardez vos plantes de temps en temps pour attraper les problèmes tôt.",
+                    "biological": "Laissez la nature faire son travail. Les insectes utiles aident.",
+                    "conventional": "Rien à faire pour maintenant."
                 }
             }
         }
