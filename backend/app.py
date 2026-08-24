@@ -97,47 +97,47 @@ class DiseaseClassifier:
         self.diseases_db = {
             "Rouille du blé": {
                 "severity": "Moderate",
-                "recommendation": "Traiter dès que possible - propagation active",
+                "recommendation": "Traitez rapidement car la maladie se propage vite d'une plante à l'autre",
                 "treatments": {
-                    "preventive": "Rotation des cultures, éliminer résidus infectés",
-                    "biological": "Pulvérisation de Bacillus subtilis",
-                    "conventional": "Fongicide à base de triazole (Systhane, Tilt)"
+                    "preventive": "Laissez reposer la terre 1-2 ans avant de replanter du blé au même endroit. Enlevez les résidus de récolte précédente.",
+                    "biological": "Pulvérisez avec des bactéries utiles (non toxique pour vous). À faire le matin ou le soir quand il fait frais.",
+                    "conventional": "Utilisez un produit de traitement chimique spécialisé (en spray). Suivez le mode d'emploi à la lettre."
                 }
             },
             "Mildiou du raisin": {
                 "severity": "Severe",
-                "recommendation": "Action urgente requise",
+                "recommendation": "C'est urgent ! La maladie peut détruire toute votre récolte en quelques jours",
                 "treatments": {
-                    "preventive": "Taille & aération, éviter humidité",
-                    "biological": "Cuivre + soufre",
-                    "conventional": "Cymoxanil + Mancozèbe"
+                    "preventive": "Taillez bien vos vignes pour que l'air circule. Arrosez le matin, pas le soir. Évitez que les feuilles restent mouillées.",
+                    "biological": "Pulvérisez un mélange de cuivre et soufre naturels. Facile à utiliser et sans danger pour votre santé.",
+                    "conventional": "Utilisez un produit de traitement contre le mildiou en suivant les instructions. Traitez toutes les feuilles."
                 }
             },
             "Oïdium": {
                 "severity": "Mild",
-                "recommendation": "Traitement recommandé",
+                "recommendation": "C'est bénin mais faites quand même quelque chose pour l'arrêter",
                 "treatments": {
-                    "preventive": "Circulation air, pas surcharge azotée",
-                    "biological": "Soufre, huiles essentielles",
-                    "conventional": "Fongicide de synthèse (Rubigan)"
+                    "preventive": "Laissez de l'espace entre les plants pour que l'air passe. Ne mettez pas trop d'engrais azoté.",
+                    "biological": "Pulvérisez du soufre naturel (très sûr). Vous pouvez aussi utiliser des huiles naturelles qui suffoquent le champignon.",
+                    "conventional": "Un simple produit anti-oïdium du commerce fonctionne bien. À appliquer régulièrement."
                 }
             },
             "Septoriose": {
                 "severity": "Moderate",
-                "recommendation": "Traiter rapidement",
+                "recommendation": "Traitez rapidement avant que ça ne s'aggrave",
                 "treatments": {
-                    "preventive": "Rotation 3 ans, destruction débris",
-                    "biological": "Bacillus pumilus",
-                    "conventional": "Triazoles, Strobilurines"
+                    "preventive": "Attendez 3 ans avant de remettre la même culture au même endroit. Brûlez ou enlevez les feuilles malades.",
+                    "biological": "Pulvérisez des bactéries utiles qui combattent la maladie naturellement.",
+                    "conventional": "Utilisez un produit de traitement classique contre les champignons. À renouveler selon les instructions."
                 }
             },
             "Feuille saine": {
                 "severity": "Mild",
-                "recommendation": "Aucun traitement requis",
+                "recommendation": "Votre plante va bien ! Continuez juste à bien l'observer",
                 "treatments": {
-                    "preventive": "Monitoring régulier",
-                    "biological": "Maintenir biodiversité",
-                    "conventional": "Traitement préventif optionnel"
+                    "preventive": "Vérifiez régulièrement l'état de vos plantes pour détecter les problèmes tôt.",
+                    "biological": "Entourez-vous d'insectes utiles et d'autres plantes pour renforcer la nature.",
+                    "conventional": "Vous n'avez pas besoin de traitement pour le moment."
                 }
             }
         }
