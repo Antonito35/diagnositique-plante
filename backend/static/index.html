@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantDiag - Diagnostic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #fafafa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        header {
+            background: white;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .nav-btn.active {
+            background: #333;
+            color: white;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        /* HOME PAGE */
+        .parcel-card {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .parcel-card:hover {
+            border-color: #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .parcel-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .parcel-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .parcel-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        .status-ok {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-alert {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-critical {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* DIAGNOSTIC PAGE */
+        .upload-box {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .upload-box:hover {
+            border-color: #333;
+            background: #fafafa;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #666;
+        }
+
+        #photoFile {
+            display: none;
+        }
+
+        .preview-img {
+            width: 100%;
+            max-width: 300px;
+            margin: 15px auto;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .preview-img.show {
+            display: block;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+            margin: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .disease-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #333;
+        }
+
+        .severity-label {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .sev-mild {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .sev-moderate {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .sev-severe {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .confidence-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .confidence-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #333;
+            transition: width 0.5s ease;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .recommendation-box {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 3px solid #333;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .treatment-item {
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .treatment-type {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .treatment-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* HISTORY PAGE */
+        .history-item {
+            border-left: 3px solid #333;
+            padding-left: 15px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-disease {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .history-info {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .history-confidence {
+            font-size: 12px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 15px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>🌿 PlantDiag</h1>
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showPage('home')">Accueil</button>
+                <button class="nav-btn" onclick="showPage('diagnostic')">Diagnostic</button>
+                <button class="nav-btn" onclick="showPage('history')">Historique</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- HOME PAGE -->
+        <div id="home" class="page active">
+            <div class="card">
+                <h2 style="font-size: 16px; margin-bottom: 15px;">Mes parcelles</h2>
+                <div id="parcelsList"></div>
+            </div>
+        </div>
+
+        <!-- DIAGNOSTIC PAGE -->
+        <div id="diagnostic" class="page">
+            <div class="card">
+                <div class="error" id="errorMsg"></div>
+                <div class="success" id="successMsg"></div>
+
+                <!-- Upload Section -->
+                <div id="uploadSection">
+                    <div class="upload-box" onclick="document.getElementById('photoFile').click()">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Cliquez pour ajouter une photo</div>
+                    </div>
+                    <input type="file" id="photoFile" accept="image/*" onchange="handlePhotoSelect()">
+
+                    <div class="button-group">
+                        <button onclick="document.getElementById('photoFile').click()">📸 Galerie</button>
+                        <button onclick="openCamera()">📹 Caméra</button>
+                    </div>
+                </div>
+
+                <img id="preview" class="preview-img" src="" alt="">
+
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <div style="font-size: 14px; color: #666;">Analyse en cours...</div>
+                </div>
+
+                <!-- Result -->
+                <div class="result" id="result">
+                    <div class="disease-title" id="diseaseName"></div>
+
+                    <div style="margin-bottom: 15px;">
+                        <span class="severity-label" id="severityBadge"></span>
+                    </div>
+
+                    <div class="confidence-box">
+                        <div class="confidence-label">
+                            <span>Certitude du diagnostic</span>
+                            <span id="confidencePercent">0%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Conseil important</div>
+                        <div class="recommendation-box" id="recommendation"></div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Comment traiter ?</div>
+
+                        <div class="treatment-item">
+                            <div class="treatment-type">1️⃣ Prévention (le mieux)</div>
+                            <div class="treatment-text" id="treatmentPreventive"></div>
+                        </div>
+
+                        <div class="treatment-item">
+                            <div class="treatment-type">2️⃣ Naturel (biologique)</div>
+                            <div class="treatment-text" id="treatmentBiological"></div>
+                        </div>
+
+                        <div class="treatment-item">
+                            <div class="treatment-type">3️⃣ Chimique (puissant)</div>
+                            <div class="treatment-text" id="treatmentConventional"></div>
+                        </div>
+                    </div>
+
+                    <button class="full-width" onclick="resetDiagnostic()">↺ Nouvelle photo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY PAGE -->
+        <div id="history" class="page">
+            <div class="card">
+                <h2 style="font-size: 16px; margin-bottom: 15px;">Historique des diagnostics</h2>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>PlantDiag © 2026 - Diagnostic agricole</p>
+    </footer>
+
+    <script>
+        const API_URL = '';
+        let allDiagnostics = [];
+        let parcels = [
+            { id: 1, name: 'Champ Nord', crop: 'Blé', status: 'ok' },
+            { id: 2, name: 'Champ Est', crop: 'Maïs', status: 'alert' },
+            { id: 3, name: 'Champ Ouest', crop: 'Soja', status: 'ok' }
+        ];
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (page === 'home') displayParcels();
+            if (page === 'history') displayHistory();
+        }
+
+        function displayParcels() {
+            const html = parcels.map(p => `
+                <div class="parcel-card">
+                    <div class="parcel-name">${p.name}</div>
+                    <div class="parcel-info">Culture: ${p.crop}</div>
+                    <span class="parcel-status status-${p.status}">
+                        ${p.status === 'ok' ? '✓ Sain' : '⚠ À surveiller'}
+                    </span>
+                </div>
+            `).join('');
+            document.getElementById('parcelsList').innerHTML = html;
+        }
+
+        function displayParcels() {
+            const html = parcels.map(p => `
+                <div class="parcel-card">
+                    <div class="parcel-name">${p.name}</div>
+                    <div class="parcel-info">Culture: ${p.crop}</div>
+                    <span class="parcel-status status-${p.status}">
+                        ${p.status === 'ok' ? '✓ Sain' : '⚠ À surveiller'}
+                    </span>
+                </div>
+            `).join('');
+            document.getElementById('parcelsList').innerHTML = html;
+        }
+
+        function handlePhotoSelect() {
+            const file = document.getElementById('photoFile').files[0];
+            if (file) {
+                showPreview(file);
+                analyzePhoto(file);
+            }
+        }
+
+        function showPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('preview').src = e.target.result;
+                document.getElementById('preview').classList.add('show');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openCamera() {
+            const input = document.getElementById('photoFile');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
+        async function analyzePhoto(file) {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('user_id', 1);
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/diagnose`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Erreur API');
+
+                const data = await response.json();
+
+                // Sauvegarder le diagnostic
+                saveDiagnostic(data);
+
+                displayResult(data);
+                showSuccess('✓ Diagnostic sauvegardé');
+            } catch (error) {
+                showError('Erreur: ' + error.message);
+                resetDiagnostic();
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+
+        function saveDiagnostic(data) {
+            const diagnostic = {
+                id: Date.now(),
+                disease: data.diagnosis,
+                confidence: Math.round(data.confidence * 100),
+                severity: data.severity,
+                date: new Date().toLocaleDateString('fr-FR'),
+                time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            allDiagnostics.unshift(diagnostic);
+            localStorage.setItem('diagnostics', JSON.stringify(allDiagnostics));
+        }
+
+        function displayResult(data) {
+            const severityMap = {
+                'Mild': 'mild',
+                'Moderate': 'moderate',
+                'Severe': 'severe'
+            };
+
+            document.getElementById('diseaseName').textContent = data.diagnosis;
+
+            const badge = document.getElementById('severityBadge');
+            badge.textContent = {
+                'Mild': '🟢 Léger',
+                'Moderate': '🟡 Modéré',
+                'Severe': '🔴 Grave'
+            }[data.severity] || data.severity;
+            badge.className = `severity-label sev-${severityMap[data.severity] || 'mild'}`;
+
+            const conf = Math.round(data.confidence * 100);
+            document.getElementById('confidencePercent').textContent = conf + '%';
+            document.getElementById('confidenceFill').style.width = conf + '%';
+
+            document.getElementById('recommendation').textContent = data.recommendation;
+            document.getElementById('treatmentPreventive').textContent = data.treatments.preventive;
+            document.getElementById('treatmentBiological').textContent = data.treatments.biological;
+            document.getElementById('treatmentConventional').textContent = data.treatments.conventional;
+
+            document.getElementById('result').classList.add('show');
+        }
+
+        function displayHistory() {
+            loadDiagnostics();
+
+            if (allDiagnostics.length === 0) {
+                document.getElementById('historyList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <p>Aucun diagnostic pour le moment</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = allDiagnostics.map(d => `
+                <div class="history-item">
+                    <div class="history-disease">${d.disease}</div>
+                    <div class="history-info">${d.date} à ${d.time}</div>
+                    <div class="history-confidence">Certitude: ${d.confidence}% - ${d.severity}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('historyList').innerHTML = html;
+        }
+
+        function loadDiagnostics() {
+            const saved = localStorage.getItem('diagnostics');
+            if (saved) {
+                allDiagnostics = JSON.parse(saved);
+            }
+        }
+
+        function resetDiagnostic() {
+            document.getElementById('photoFile').value = '';
+            document.getElementById('preview').classList.remove('show');
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successMsg');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        // Initial load
+        displayParcels();
+        loadDiagnostics();
+    </script>
+</body>
+</html>

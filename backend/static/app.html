@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantDiag</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 40px 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: #333;
+            background: #fafafa;
+        }
+
+        .upload-section.active {
+            border-color: #333;
+            background: #fafafa;
+        }
+
+        #photoFile {
+            display: none;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .buttons-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .buttons-group button {
+            margin: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .disease-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .confidence {
+            margin-bottom: 20px;
+        }
+
+        .confidence-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .confidence-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #333;
+            transition: width 0.5s ease;
+        }
+
+        .severity {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .severity.mild {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .severity.moderate {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .severity.severe {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .treatment {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .treatment:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .treatment-type {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .treatment-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .recommendation {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .reset-btn:hover {
+            background: #e0e0e0;
+        }
+
+        footer {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .preview {
+            width: 100%;
+            max-width: 300px;
+            margin: 15px auto;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .preview.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌿 PlantDiag</h1>
+            <p class="subtitle">Diagnostic de maladies agricoles</p>
+        </header>
+
+        <div class="card">
+            <div class="error" id="errorMsg"></div>
+            <div class="success" id="successMsg"></div>
+
+            <!-- Upload Section -->
+            <div id="uploadSection">
+                <div class="upload-section" onclick="document.getElementById('photoFile').click()">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Cliquez pour ajouter une photo</div>
+                    <div style="font-size: 12px; color: #999;">ou depuis votre galerie</div>
+                </div>
+
+                <input type="file" id="photoFile" accept="image/*" onchange="handlePhotoSelect()">
+
+                <div class="buttons-group">
+                    <button onclick="document.getElementById('photoFile').click()">
+                        📸 Galerie
+                    </button>
+                    <button onclick="openCamera()">
+                        📹 Caméra
+                    </button>
+                </div>
+            </div>
+
+            <img id="preview" class="preview" src="" alt="">
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div style="font-size: 14px; color: #666;">Analyse en cours...</div>
+            </div>
+
+            <!-- Result -->
+            <div class="result" id="result">
+                <div class="disease-name" id="diseaseName"></div>
+
+                <span class="severity" id="severityBadge"></span>
+
+                <div class="confidence">
+                    <div class="confidence-label">
+                        <span>Confiance</span>
+                        <span id="confidencePercent">0%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="section-title">Recommandations</div>
+                <div class="recommendation" id="recommendation"></div>
+
+                <div class="section-title">Solutions possibles</div>
+
+                <div class="treatment">
+                    <div class="treatment-type">Préventif</div>
+                    <div class="treatment-text" id="treatmentPreventive"></div>
+                </div>
+
+                <div class="treatment">
+                    <div class="treatment-type">Biologique</div>
+                    <div class="treatment-text" id="treatmentBiological"></div>
+                </div>
+
+                <div class="treatment">
+                    <div class="treatment-type">Chimique</div>
+                    <div class="treatment-text" id="treatmentConventional"></div>
+                </div>
+
+                <button class="reset-btn" onclick="reset()">⟲ Nouvelle analyse</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>PlantDiag © 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = '';
+
+        function handlePhotoSelect() {
+            const file = document.getElementById('photoFile').files[0];
+            if (file) {
+                showPreview(file);
+                analyzePhoto(file);
+            }
+        }
+
+        function showPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.classList.add('show');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openCamera() {
+            const input = document.getElementById('photoFile');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successMsg');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        async function analyzePhoto(file) {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('user_id', 1);
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/diagnose`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur API');
+                }
+
+                const data = await response.json();
+                displayResult(data);
+                showSuccess('✓ Diagnostic effectué');
+            } catch (error) {
+                showError('Erreur : ' + error.message);
+                reset();
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+
+        function displayResult(data) {
+            const severityMap = {
+                'Mild': 'mild',
+                'Moderate': 'moderate',
+                'Severe': 'severe'
+            };
+
+            document.getElementById('diseaseName').textContent = data.diagnosis;
+
+            const badge = document.getElementById('severityBadge');
+            badge.textContent = data.severity;
+            badge.className = `severity ${severityMap[data.severity] || 'mild'}`;
+
+            const conf = Math.round(data.confidence * 100);
+            document.getElementById('confidencePercent').textContent = conf + '%';
+            document.getElementById('confidenceFill').style.width = conf + '%';
+
+            document.getElementById('recommendation').textContent = data.recommendation;
+            document.getElementById('treatmentPreventive').textContent = data.treatments.preventive;
+            document.getElementById('treatmentBiological').textContent = data.treatments.biological;
+            document.getElementById('treatmentConventional').textContent = data.treatments.conventional;
+
+            document.getElementById('result').classList.add('show');
+        }
+
+        function reset() {
+            document.getElementById('photoFile').value = '';
+            document.getElementById('preview').classList.remove('show');
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('loading').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
