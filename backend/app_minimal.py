@@ -244,11 +244,15 @@ async def get_history(user_id: int, limit: int = 10, db: Session = Depends(get_d
     return [
         {
             "id": d.id,
-            "diagnosis": d.disease_name,
+            "disease_name": d.disease_name,
+            "disease": d.disease_name,
+            "confidence_score": d.confidence_score,
             "confidence": d.confidence_score,
             "severity": d.severity,
+            "created_at": d.created_at.isoformat(),
             "timestamp": d.created_at.isoformat(),
-            "parcel_id": d.parcel_id
+            "parcel_id": d.parcel_id,
+            "parcel_name": None
         }
         for d in diagnostics
     ]
