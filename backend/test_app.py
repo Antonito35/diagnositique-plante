@@ -269,7 +269,7 @@ class TestMLClassifier:
     def test_classifier_get_disease_info(self):
         """Test getting disease information"""
         classifier = DiseaseClassifier()
-        info = classifier.get_disease_info("Rouille du blé")
+        info = classifier.get_disease_info("Taches rouges sur le blé")
 
         assert "severity" in info
         assert "recommendation" in info
