@@ -37,6 +37,7 @@ except ImportError:
 # Import database et models
 from database import get_db, init_db
 from models import User, Parcel, Diagnostic, DiseaseModel
+from routers import auth
 
 # Initialiser la base de données au démarrage
 init_db()
@@ -46,6 +47,9 @@ app = FastAPI(
     description="Diagnostic agricole avec IA et base de données",
     version="2.0.0"
 )
+
+# Include routers
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 
 # CORS
 app.add_middleware(
