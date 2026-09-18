@@ -35,4 +35,7 @@ def get_db():
 
 def init_db():
     """Initialiser la base de données"""
+    # Importer les modèles pour que SQLAlchemy les connaisse
+    from models import User, Parcel, Diagnostic, WeatherHistory, DiseaseModel
     Base.metadata.create_all(bind=engine)
+    print("✅ Base de données initialisée avec les tables")
