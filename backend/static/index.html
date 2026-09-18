@@ -1098,20 +1098,31 @@
         }
 
         function displayHistory() {
-            if (allDiagnostics.length === 0) {
-                document.getElementById('historyList').innerHTML = '<div class="empty-state">Aucun diagnostic</div>';
-                return;
-            }
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="empty-state">Chargement...</div>';
 
-            const html = allDiagnostics.map(d => `
-                <div class="history-item">
-                    <div class="history-disease">${d.disease}</div>
-                    <div class="history-info">${d.parcel || 'Diagnostic rapide'} • ${d.date} ${d.time}</div>
-                    <div class="history-confidence">Certitude: ${d.confidence}% • ${d.severity}</div>
-                </div>
-            `).join('');
+            const userId = 1;
+            fetch(`${API_URL}/api/v1/history/${userId}`)
+                .then(r => r.json())
+                .then(diagnostics => {
+                    if (!diagnostics || diagnostics.length === 0) {
+                        historyList.innerHTML = '<div class="empty-state">Aucun diagnostic</div>';
+                        return;
+                    }
 
-            document.getElementById('historyList').innerHTML = html;
+                    const html = diagnostics.map(d => `
+                        <div class="history-item">
+                            <div class="history-disease">${d.disease_name || d.disease || 'Unknown'}</div>
+                            <div class="history-info">${d.parcel_name || d.parcel || 'Diagnostic rapide'} • ${new Date(d.created_at).toLocaleDateString('fr-FR')}</div>
+                            <div class="history-confidence">Certitude: ${Math.round(d.confidence_score || 0)}% • ${d.severity || 'Normal'}</div>
+                        </div>
+                    `).join('');
+                    historyList.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Erreur historique:', err);
+                    historyList.innerHTML = '<div class="empty-state">Erreur chargement</div>';
+                });
         }
 
         function clearHistory() {
