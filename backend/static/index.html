@@ -663,10 +663,7 @@
                 <h1>PlantDiag</h1>
                 <p>Diagnostic agricole</p>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button class="weather-btn" onclick="showLocationModal()" title="Définir votre localisation">📍</button>
-                <button class="weather-btn" onclick="showWeatherModal()">Météo</button>
-            </div>
+            <button class="weather-btn" onclick="showWeatherModal()">Météo</button>
         </header>
 
         <div class="nav-tabs">
@@ -886,13 +883,24 @@
                 <button onclick="searchCity()" style="padding: 10px 12px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; cursor: pointer; font-size: 12px; width: auto;">Chercher</button>
             </div>
 
+            <!-- Favoris -->
+            <div style="margin-top: 15px; margin-bottom: 15px;">
+                <div style="font-size: 12px; font-weight: 600; opacity: 0.9; margin-bottom: 8px;">Villes favorites</div>
+                <div id="favoriteCitiesList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <!-- Favoris générés par JS -->
+                </div>
+            </div>
+
             <div id="weatherContent" style="margin-top: 20px;">
                 <div style="text-align: center; padding: 30px;">
                     <div style="font-size: 14px; opacity: 0.9;">Chargement...</div>
                 </div>
             </div>
 
-            <button onclick="refreshWeather()" style="background: rgba(255,255,255,0.2); color: white; margin-top: 15px;" class="full-width">Rafraîchir</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <button onclick="refreshWeather()" style="background: rgba(255,255,255,0.2); color: white;">Rafraîchir</button>
+                <button onclick="addCurrentCityToFavorites()" style="background: rgba(255,215,0,0.3); color: white; border: 1px solid rgba(255,215,0,0.5);">⭐ Favori</button>
+            </div>
         </div>
     </div>
 
@@ -928,6 +936,18 @@
         let currentWeatherLon = -1.7488;
         let currentWeatherLocation = "Combourg";
         let currentWeatherData = null;
+        let favoriteCities = [];
+
+        // Charger les villes favorites
+        function loadFavoriteCities() {
+            const saved = localStorage.getItem('favoriteCities');
+            if (saved) favoriteCities = JSON.parse(saved);
+        }
+
+        // Sauvegarder les villes favorites
+        function saveFavoriteCities() {
+            localStorage.setItem('favoriteCities', JSON.stringify(favoriteCities));
+        }
 
         // Géolocalisation par IP (fonctionne sur HTTP)
         async function initGeolocation() {
@@ -957,6 +977,7 @@
 
         // Load data
         async function loadData() {
+            loadFavoriteCities();
             await initGeolocation();
             const saved = localStorage.getItem('parcels');
             if (saved) allParcels = JSON.parse(saved);
@@ -1344,9 +1365,25 @@
         }
 
         // Weather
+        function displayFavoriteCities() {
+            const list = document.getElementById('favoriteCitiesList');
+            if (favoriteCities.length === 0) {
+                list.innerHTML = '<div style="font-size: 12px; opacity: 0.8; color: white;">Aucune favorite. Cherchez une ville et cliquez ★</div>';
+                return;
+            }
+
+            list.innerHTML = favoriteCities.map(city => `
+                <button onclick="loadFavoriteCity('${city.name}', ${city.lat}, ${city.lon})" style="padding: 8px 12px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 6px;">
+                    ★ ${city.name}
+                    <span style="cursor: pointer; margin-left: 4px;" onclick="removeFavoriteCity('${city.name}', event)">✕</span>
+                </button>
+            `).join('');
+        }
+
         async function showWeatherModal() {
             document.getElementById('weatherModal').classList.add('active');
             document.getElementById('cityInput').value = '';
+            displayFavoriteCities();
             await loadWeatherData();
         }
 
@@ -1428,11 +1465,54 @@
                 }
 
                 const result = results[0];
-                await loadWeatherData(parseFloat(result.lat), parseFloat(result.lon), city);
+                const lat = parseFloat(result.lat);
+                const lon = parseFloat(result.lon);
+                const cityName = result.address.city || result.address.town || city;
+
+                await loadWeatherData(lat, lon, cityName);
+
+                // Afficher le bouton "Ajouter aux favoris"
+                showSuccess(`💡 Cliquez sur ★ pour ajouter "${cityName}" à vos favoris`, 'successMsg');
+
+                // Stocker temporairement la ville actuelle pour l'ajout aux favoris
+                window.currentSelectedCity = { name: cityName, lat: lat, lon: lon };
+
                 document.getElementById('cityInput').value = '';
             } catch (error) {
                 alert('Erreur de recherche');
             }
+        }
+
+        function addCurrentCityToFavorites() {
+            if (!window.currentSelectedCity) {
+                alert('Cherchez d\'abord une ville');
+                return;
+            }
+
+            const { name, lat, lon } = window.currentSelectedCity;
+
+            // Vérifier si déjà dans les favoris
+            if (favoriteCities.find(c => c.name === name)) {
+                alert(`${name} est déjà en favori`);
+                return;
+            }
+
+            favoriteCities.push({ name, lat, lon });
+            saveFavoriteCities();
+            displayFavoriteCities();
+            showSuccess(`⭐ ${name} ajouté aux favoris`, 'successMsg');
+        }
+
+        function loadFavoriteCity(name, lat, lon) {
+            loadWeatherData(lat, lon, name);
+        }
+
+        function removeFavoriteCity(name, event) {
+            event.stopPropagation();
+            favoriteCities = favoriteCities.filter(c => c.name !== name);
+            saveFavoriteCities();
+            displayFavoriteCities();
+            showSuccess(`Favori supprimé`, 'successMsg');
         }
 
         async function loadWeatherData(lat = null, lon = null, location = null) {
