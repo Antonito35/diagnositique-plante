@@ -1182,7 +1182,7 @@
                         <div class="history-item">
                             <div class="history-disease">${d.disease_name || d.disease || 'Unknown'}</div>
                             <div class="history-info">${d.parcel_name || d.parcel || 'Diagnostic rapide'} • ${new Date(d.created_at).toLocaleDateString('fr-FR')}</div>
-                            <div class="history-confidence">Certitude: ${Math.round(d.confidence_score || 0)}% • ${d.severity || 'Normal'}</div>
+                            <div class="history-confidence">Certitude: ${Math.round((d.confidence_score || 0) * 100)}% • ${d.severity || 'Normal'}</div>
                         </div>
                     `).join('');
                     historyList.innerHTML = html;
