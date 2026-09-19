@@ -903,9 +903,35 @@
         let currentWeatherLat = 48.3606;
         let currentWeatherLon = -1.7488;
         let currentWeatherLocation = "Combourg";
+        let currentWeatherData = null;
+
+        // Géolocalisation
+        function initGeolocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentWeatherLat = position.coords.latitude;
+                        currentWeatherLon = position.coords.longitude;
+                        console.log(`📍 Localisation: ${currentWeatherLat.toFixed(4)}, ${currentWeatherLon.toFixed(4)}`);
+                        // Récupérer le nom de la ville via API
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentWeatherLat}&lon=${currentWeatherLon}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                currentWeatherLocation = data.address.city || data.address.town || data.address.village || 'Localisation actuelle';
+                            })
+                            .catch(e => console.log('Géolocalisation: ville non trouvée'));
+                    },
+                    (error) => {
+                        console.log('Géolocalisation refusée ou indisponible - utilisation de la localisation par défaut (Combourg)');
+                    },
+                    { timeout: 5000, enableHighAccuracy: false }
+                );
+            }
+        }
 
         // Load data
         function loadData() {
+            initGeolocation();
             const saved = localStorage.getItem('parcels');
             if (saved) allParcels = JSON.parse(saved);
             const savedDiag = localStorage.getItem('diagnostics');
@@ -1204,53 +1230,91 @@
 
         function displayAlerts() {
             const alertsList = document.getElementById('alertsList');
+            alertsList.innerHTML = '<div class="empty-state">Chargement des alertes...</div>';
 
-            // Alertes intelligentes basées sur les diagnostics et météo
-            let alerts = [];
+            // Récupérer les données météo pour la localisation actuelle
+            fetch(`${API_URL}/api/v1/weather?latitude=${currentWeatherLat}&longitude=${currentWeatherLon}`)
+                .then(r => r.json())
+                .then(weather => {
+                    currentWeatherData = weather;
+                    let alerts = [];
 
-            // Alerte 1 : Diagnostics récents avec maladie
-            if (allDiagnostics.length > 0) {
-                const recentDiag = allDiagnostics[0];
-                if (recentDiag.disease && recentDiag.disease !== 'Feuille saine') {
+                    // Alerte 1 : Diagnostics récents avec maladie
+                    if (allDiagnostics.length > 0) {
+                        const recentDiag = allDiagnostics[0];
+                        if (recentDiag.disease && recentDiag.disease !== 'Feuille saine') {
+                            alerts.push({
+                                level: 'danger',
+                                title: '⚠️ Maladie Détectée',
+                                text: `${recentDiag.disease} détectée avec ${Math.round(recentDiag.confidence * 100)}% de certitude`,
+                                risk: 'Risque : ÉLEVÉ - Action requise immédiatement'
+                            });
+                        }
+                    }
+
+                    // Alerte 2 : Risques météo par région (basé sur localisation actuelle)
+                    const current = weather.current;
+                    const diseaseRisks = weather.disease_risk;
+                    let riskLevel = 'info';
+                    let riskTitle = '🌦️ Conditions Favorables';
+                    let riskText = 'Conditions actuelles: ' + current.condition;
+                    let riskDesc = `Température: ${current.temperature_celsius}°C, Humidité: ${current.humidity_percent}%`;
+
+                    // Déterminer le niveau d'alerte météo
+                    if (current.humidity_percent > 80 && current.temperature_celsius >= 15 && current.temperature_celsius <= 25) {
+                        riskLevel = 'warning';
+                        riskTitle = '⚠️ Conditions Favorables aux Maladies';
+                        riskText = 'Votre région a des conditions idéales pour le développement des maladies';
+                        riskDesc = `Humidité ${current.humidity_percent}% + Température ${current.temperature_celsius}°C = Risque élevé`;
+                    }
+
+                    if (diseaseRisks.mildew > 70 || diseaseRisks.powdery_mildew > 70 || diseaseRisks.rust > 70) {
+                        riskLevel = 'danger';
+                        riskTitle = '🚨 Alerte Risque de Maladie';
+                        const topRisk = Object.entries(diseaseRisks).sort((a, b) => b[1] - a[1])[0];
+                        riskText = `Risque très élevé pour cette région: ${topRisk[0].replace('_', ' ')} (${topRisk[1]}%)`;
+                        riskDesc = `Mildiou: ${diseaseRisks.mildew}% | Oïdium: ${diseaseRisks.powdery_mildew}% | Rouille: ${diseaseRisks.rust}%`;
+                    }
+
                     alerts.push({
-                        level: 'danger',
-                        title: '⚠️ Maladie Détectée',
-                        text: `${recentDiag.disease} détectée avec ${Math.round(recentDiag.confidence * 100)}% de certitude`,
-                        risk: 'Risque : ÉLEVÉ - Action requise immédiatement'
+                        level: riskLevel,
+                        title: riskTitle,
+                        text: riskText + ' à ' + currentWeatherLocation,
+                        risk: riskDesc
                     });
-                }
-            }
 
-            // Alerte 2 : Météo défavorable
-            alerts.push({
-                level: 'warning',
-                title: '🌤️ Conditions Météo',
-                text: 'Humidité favorable aux maladies cette semaine',
-                risk: 'Températures 15-25°C + humidité > 80%'
-            });
+                    // Alerte 3 : Recommandations localisées
+                    let recommendation = 'Vérifiez vos parcelles régulièrement';
+                    if (diseaseRisks.mildew > 50 || diseaseRisks.powdery_mildew > 50) {
+                        recommendation = 'Inspectez vos cultures pour détecter tout signe de maladie - risque élevé cette semaine';
+                    }
 
-            // Alerte 3 : Recommandations
-            alerts.push({
-                level: 'info',
-                title: '💡 Recommandation',
-                text: 'Vérifiez vos parcelles régulièrement',
-                risk: 'Fréquence : 2-3 fois par semaine recommandée'
-            });
+                    alerts.push({
+                        level: 'info',
+                        title: '💡 Recommandation Régionale',
+                        text: recommendation,
+                        risk: `Zone: ${currentWeatherLocation} | Fréquence inspection: 2-3 fois/semaine`
+                    });
 
-            if (alerts.length === 0) {
-                alertsList.innerHTML = '<div class="empty-state">Aucune alerte pour le moment</div>';
-                return;
-            }
+                    if (alerts.length === 0) {
+                        alertsList.innerHTML = '<div class="empty-state">Aucune alerte pour le moment</div>';
+                        return;
+                    }
 
-            const html = alerts.map(alert => `
-                <div class="alert-item ${alert.level}">
-                    <div class="alert-title">${alert.title}</div>
-                    <div class="alert-text">${alert.text}</div>
-                    <div class="alert-risk">📊 ${alert.risk}</div>
-                </div>
-            `).join('');
+                    const html = alerts.map(alert => `
+                        <div class="alert-item ${alert.level}">
+                            <div class="alert-title">${alert.title}</div>
+                            <div class="alert-text">${alert.text}</div>
+                            <div class="alert-risk">📊 ${alert.risk}</div>
+                        </div>
+                    `).join('');
 
-            alertsList.innerHTML = html;
+                    alertsList.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Erreur chargement alertes:', err);
+                    alertsList.innerHTML = '<div class="empty-state">Erreur chargement alertes</div>';
+                });
         }
 
         // Weather
