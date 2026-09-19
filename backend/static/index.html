@@ -663,7 +663,10 @@
                 <h1>PlantDiag</h1>
                 <p>Diagnostic agricole</p>
             </div>
-            <button class="weather-btn" onclick="showWeatherModal()">Météo</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="weather-btn" onclick="requestGeolocation()" title="Activer la localisation">📍</button>
+                <button class="weather-btn" onclick="showWeatherModal()">Météo</button>
+            </div>
         </header>
 
         <div class="nav-tabs">
@@ -918,6 +921,7 @@
                             .then(r => r.json())
                             .then(data => {
                                 currentWeatherLocation = data.address.city || data.address.town || data.address.village || 'Localisation actuelle';
+                                console.log(`📍 Ville: ${currentWeatherLocation}`);
                             })
                             .catch(e => console.log('Géolocalisation: ville non trouvée'));
                     },
@@ -927,6 +931,40 @@
                     { timeout: 5000, enableHighAccuracy: false }
                 );
             }
+        }
+
+        // Demander manuellement la géolocalisation
+        function requestGeolocation() {
+            if (!navigator.geolocation) {
+                alert('Géolocalisation non supportée par votre navigateur');
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentWeatherLat = position.coords.latitude;
+                    currentWeatherLon = position.coords.longitude;
+                    console.log(`📍 Localisation obtenue: ${currentWeatherLat.toFixed(4)}, ${currentWeatherLon.toFixed(4)}`);
+
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentWeatherLat}&lon=${currentWeatherLon}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            currentWeatherLocation = data.address.city || data.address.town || data.address.village || 'Localisation actuelle';
+                            showSuccess(`📍 Localisation: ${currentWeatherLocation}`, 'successMsg');
+                        })
+                        .catch(e => console.log('Géolocalisation: ville non trouvée'));
+                },
+                (error) => {
+                    if (error.code === 1) {
+                        alert('❌ Géolocalisation refusée. Utilisez les paramètres du navigateur pour autoriser.');
+                    } else if (error.code === 2) {
+                        alert('⚠️ Position non disponible. Vérifiez votre connexion.');
+                    } else {
+                        alert('❌ Erreur géolocalisation');
+                    }
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
         }
 
         // Load data
