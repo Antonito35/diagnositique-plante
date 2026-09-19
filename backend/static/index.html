@@ -929,34 +929,35 @@
         let currentWeatherLocation = "Combourg";
         let currentWeatherData = null;
 
-        // Géolocalisation
-        function initGeolocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        currentWeatherLat = position.coords.latitude;
-                        currentWeatherLon = position.coords.longitude;
-                        console.log(`📍 Localisation: ${currentWeatherLat.toFixed(4)}, ${currentWeatherLon.toFixed(4)}`);
-                        // Récupérer le nom de la ville via API
-                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentWeatherLat}&lon=${currentWeatherLon}`)
-                            .then(r => r.json())
-                            .then(data => {
-                                currentWeatherLocation = data.address.city || data.address.town || data.address.village || 'Localisation actuelle';
-                                console.log(`📍 Ville: ${currentWeatherLocation}`);
-                            })
-                            .catch(e => console.log('Géolocalisation: ville non trouvée'));
-                    },
-                    (error) => {
-                        console.log('Géolocalisation refusée ou indisponible - utilisation de la localisation par défaut (Combourg)');
-                    },
-                    { timeout: 5000, enableHighAccuracy: false }
-                );
+        // Géolocalisation par IP (fonctionne sur HTTP)
+        async function initGeolocation() {
+            try {
+                console.log('📍 Récupération de la localisation par IP...');
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+
+                if (data.latitude && data.longitude) {
+                    currentWeatherLat = parseFloat(data.latitude);
+                    currentWeatherLon = parseFloat(data.longitude);
+                    currentWeatherLocation = data.city || data.region_code || 'Localisation actuelle';
+                    console.log(`✅ Localisation auto: ${currentWeatherLocation} (${currentWeatherLat.toFixed(4)}, ${currentWeatherLon.toFixed(4)})`);
+
+                    // Rafraîchir les alertes si on est sur la page
+                    if (document.getElementById('alerts').classList.contains('active')) {
+                        displayAlerts();
+                    }
+                } else {
+                    console.log('⚠️ Impossible de récupérer la localisation, utilisation du fallback (Combourg)');
+                }
+            } catch (error) {
+                console.log('❌ Erreur géolocalisation IP:', error);
+                console.log('Utilisation du fallback (Combourg)');
             }
         }
 
         // Load data
-        function loadData() {
-            initGeolocation();
+        async function loadData() {
+            await initGeolocation();
             const saved = localStorage.getItem('parcels');
             if (saved) allParcels = JSON.parse(saved);
             const savedDiag = localStorage.getItem('diagnostics');
