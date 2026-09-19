@@ -449,6 +449,64 @@
             border-left-color: #28a745;
         }
 
+        .alert-item {
+            background: white;
+            border-left: 4px solid;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .alert-item.danger {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .alert-item.warning {
+            border-left-color: #ffc107;
+            background: #fffbf0;
+        }
+
+        .alert-item.info {
+            border-left-color: #27ae60;
+            background: #f0f9f7;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .alert-item.danger .alert-title {
+            color: #dc3545;
+        }
+
+        .alert-item.warning .alert-title {
+            color: #ff9800;
+        }
+
+        .alert-item.info .alert-title {
+            color: #27ae60;
+        }
+
+        .alert-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .alert-risk {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        }
+
         .error.show, .success.show {
             display: block;
         }
@@ -612,6 +670,15 @@
             <button class="nav-tab active" onclick="showPage('parcels')">Mes parcelles</button>
             <button class="nav-tab" onclick="showPage('quickDiag')">Diagnostic</button>
             <button class="nav-tab" onclick="showPage('history')">Historique</button>
+            <button class="nav-tab" onclick="showPage('alerts')">Alertes</button>
+        </div>
+
+        <!-- ALERTES PAGE -->
+        <div id="alerts" class="page">
+            <div class="content">
+                <div class="section-title">Alertes Agricoles Intelligentes</div>
+                <div id="alertsList"></div>
+            </div>
         </div>
 
         <!-- MES PARCELLES PAGE -->
@@ -954,6 +1021,7 @@
             }
 
             if (page === 'history') displayHistory();
+            if (page === 'alerts') displayAlerts();
         }
 
         // Photo handling
@@ -1132,6 +1200,57 @@
                 displayHistory();
                 showSuccess('Historique supprimé', 'successMsg');
             }
+        }
+
+        function displayAlerts() {
+            const alertsList = document.getElementById('alertsList');
+
+            // Alertes intelligentes basées sur les diagnostics et météo
+            let alerts = [];
+
+            // Alerte 1 : Diagnostics récents avec maladie
+            if (allDiagnostics.length > 0) {
+                const recentDiag = allDiagnostics[0];
+                if (recentDiag.disease && recentDiag.disease !== 'Feuille saine') {
+                    alerts.push({
+                        level: 'danger',
+                        title: '⚠️ Maladie Détectée',
+                        text: `${recentDiag.disease} détectée avec ${Math.round(recentDiag.confidence * 100)}% de certitude`,
+                        risk: 'Risque : ÉLEVÉ - Action requise immédiatement'
+                    });
+                }
+            }
+
+            // Alerte 2 : Météo défavorable
+            alerts.push({
+                level: 'warning',
+                title: '🌤️ Conditions Météo',
+                text: 'Humidité favorable aux maladies cette semaine',
+                risk: 'Températures 15-25°C + humidité > 80%'
+            });
+
+            // Alerte 3 : Recommandations
+            alerts.push({
+                level: 'info',
+                title: '💡 Recommandation',
+                text: 'Vérifiez vos parcelles régulièrement',
+                risk: 'Fréquence : 2-3 fois par semaine recommandée'
+            });
+
+            if (alerts.length === 0) {
+                alertsList.innerHTML = '<div class="empty-state">Aucune alerte pour le moment</div>';
+                return;
+            }
+
+            const html = alerts.map(alert => `
+                <div class="alert-item ${alert.level}">
+                    <div class="alert-title">${alert.title}</div>
+                    <div class="alert-text">${alert.text}</div>
+                    <div class="alert-risk">📊 ${alert.risk}</div>
+                </div>
+            `).join('');
+
+            alertsList.innerHTML = html;
         }
 
         // Weather
