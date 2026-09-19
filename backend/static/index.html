@@ -1467,7 +1467,7 @@
                 const result = results[0];
                 const lat = parseFloat(result.lat);
                 const lon = parseFloat(result.lon);
-                const cityName = result.address.city || result.address.town || city;
+                const cityName = result.name || city;
 
                 await loadWeatherData(lat, lon, cityName);
 
