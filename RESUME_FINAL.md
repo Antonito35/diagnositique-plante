@@ -117,17 +117,22 @@
 
 ## 📊 **MÉTRIQUES FINALES**
 
-| Métrique | Cible CDC | Atteint | Statut |
-|----------|-----------|---------|--------|
-| **Endpoints API** | 5+ | 18 | ✅ +260 % |
-| **Temps de réponse** | < 2 s | ~1,5 s | ✅ -25 % |
-| **Précision de l'IA** | > 85 % | 87 % | ✅ +2 pts |
-| **Technologies imposées** | 3 | 3 | ✅ 100 % |
-| **Capteurs IoT** | simulés ou réels | 2 capteurs, 6 mesures | ✅ |
-| **Documentation** | Complète | Oui | ✅ 8 documents |
-| **Déploiement** | Cloud | AWS en ligne | ✅ |
-| **Architecture** | Diagramme | Oui | ✅ terrain + 4 tiers |
-| **Sécurité** | JWT | Bcrypt + JWT | ✅ |
+Le cahier des charges ne fixe aucun seuil chiffré (pas de nombre d'endpoints,
+de temps de réponse ou de précision minimale requis). Les cibles marquées
+« CDC » ci-dessous sont les exigences explicites du cahier des charges ; les
+autres sont des objectifs de qualité que nous nous sommes fixés nous-mêmes.
+
+| Métrique | Origine de la cible | Cible | Atteint | Statut |
+|----------|---------------------|-------|---------|--------|
+| **Technologies imposées** | CDC | 3 | 3 | ✅ 100 % |
+| **Déploiement** | CDC | Cloud | AWS en ligne | ✅ |
+| **Architecture** | CDC | Diagramme réseau | Terrain IoT + 4 tiers | ✅ |
+| **Documentation** | CDC | Complète | 8 documents | ✅ |
+| **Capteurs IoT** | CDC | Simulés ou réels | 2 capteurs, 6 mesures | ✅ |
+| **Endpoints API** | Objectif interne | 5+ | 18 | ✅ +260 % |
+| **Temps de réponse** | Objectif interne | < 2 s | ~1,5 s | ✅ -25 % |
+| **Précision de l'IA** | Objectif interne | > 85 % | 87 % | ✅ +2 pts |
+| **Sécurité** | Bonne pratique | JWT | Bcrypt + JWT | ✅ |
 
 ---
 

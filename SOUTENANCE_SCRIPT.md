@@ -114,7 +114,7 @@ Tout est testable en direct via Swagger, à l'adresse slash docs."
 
 On reçoit la photo, OpenCV analyse la couleur, la saturation, le contraste et la texture, on compare ces caractéristiques aux signatures des maladies connues, et on retourne la plus probable avec un indice de confiance.
 
-Précision : 87 %, au-dessus des 85 % requis par le CDC. Performance : réponse en 1,5 seconde."
+Précision : 87 %, au-dessus des 85 % que nous nous étions fixés comme objectif. Performance : réponse en 1,5 seconde."
 
 ---
 
@@ -139,9 +139,9 @@ C'est de la production, pas une démonstration sur un ordinateur portable."
 ## SLIDE 13 - RÉSULTATS MESURÉS (40 secondes)
 
 **À dire :**
-"Face aux objectifs : 18 endpoints livrés pour 5 demandés. 1,5 seconde de temps de réponse contre moins de 2 exigées. 87 % de précision contre 85 demandés. Un relevé par minute et par capteur, soit une surveillance continue.
+"Le cahier des charges ne fixe pas de seuil chiffré : nous nous sommes fixé nos propres objectifs de qualité, et ils sont tous dépassés. 18 endpoints livrés pour un objectif de 5. 1,5 seconde de temps de réponse contre un objectif de moins de 2 secondes. 87 % de précision contre un objectif de 85 %. Un relevé par minute et par capteur, soit une surveillance continue.
 
-Chaque critère mesurable est atteint ou dépassé."
+Les exigences explicites du CDC, elles, sont toutes respectées : les 3 technologies imposées, le déploiement cloud, l'architecture avec capteurs IoT, et la documentation complète."
 
 ---
 

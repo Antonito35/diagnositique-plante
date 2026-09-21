@@ -104,3 +104,8 @@ Thumbs.db
 secrets/
 credentials/
 config/local*
+
+# Fichiers verrou Office (créés à l'ouverture d'un .docx/.pptx)
+~$*.docx
+~$*.pptx
+~$*.xlsx

@@ -131,16 +131,21 @@ GET    /                             ✅ Frontend HTML
 
 ## 📊 **MÉTRIQUES FINALES ✅**
 
-| Métrique | Cible | Atteint | Statut |
-|----------|--------|---------|--------|
-| Endpoints | 5+ | 18 | ✅ +260% |
-| Temps réponse | < 2s | ~1,5s | ✅ |
-| Précision IA | > 85% | 87% | ✅ |
-| Technologies imposées | 3 | 3 | ✅ 100% |
-| Capteurs IoT | simulés ou réels | 2 capteurs simulés, 6 mesures | ✅ |
-| Documentation | Complète | 8 documents | ✅ |
-| Déploiement | Cloud | AWS en ligne | ✅ |
-| Disponibilité | 24/7 | Oui | ✅ |
+Le CDC ne fixe aucun seuil chiffré (ni nombre d'endpoints, ni temps de
+réponse, ni précision minimale). Seules les lignes marquées « CDC » sont
+des exigences du cahier des charges ; les autres sont des objectifs de
+qualité fixés par nous-mêmes.
+
+| Métrique | Origine | Cible | Atteint | Statut |
+|----------|---------|-------|---------|--------|
+| Technologies imposées | CDC | 3 | 3 | ✅ 100% |
+| Déploiement | CDC | Cloud | AWS en ligne | ✅ |
+| Capteurs IoT | CDC | simulés ou réels | 2 capteurs simulés, 6 mesures | ✅ |
+| Documentation | CDC | Complète | 8 documents | ✅ |
+| Endpoints | Objectif interne | 5+ | 18 | ✅ +260% |
+| Temps réponse | Objectif interne | < 2s | ~1,5s | ✅ |
+| Précision IA | Objectif interne | > 85% | 87% | ✅ |
+| Disponibilité | Objectif interne | 24/7 | Oui | ✅ |
 
 ---
 
