@@ -154,12 +154,16 @@ Les exigences explicites du CDC, elles, sont toutes respectées : les 3 technolo
 
 ---
 
-## SLIDE 15 - CONCLUSION (30 secondes)
+## SLIDE 15 - CONCLUSION (55 secondes)
 
 **À dire :**
 "PlantDiag est fonctionnel, conforme au cahier des charges, documenté et évolutif.
 
-Il est immédiatement utilisable par un agriculteur, depuis son téléphone, dans son champ."
+Mais je voulais surtout le tester en dehors de l'école. Mon frère est agriculteur, il l'a testé directement dans sa ferme. Et mon père, qui est commercial dans le secteur agricole, m'a emmené sur le terrain pour le faire essayer à plusieurs autres agriculteurs.
+
+Le retour qui est revenu le plus souvent, ce n'est pas le diagnostic en lui-même : c'est d'avoir toutes leurs données centralisées au même endroit, et surtout la météo couplée aux risques de maladie, pour pouvoir anticiper avant que le problème n'apparaisse plutôt que de le découvrir une fois qu'il est trop tard.
+
+C'est immédiatement utilisable par un agriculteur, depuis son téléphone, dans son champ - et c'est un retour de vrais agriculteurs qui me le confirme, pas seulement moi."
 
 ---
 
@@ -221,5 +225,5 @@ R : "Oui, l'interface est responsive et s'ouvre dans le navigateur, sans install
 
 ---
 
-**Durée totale : 15 minutes**
+**Durée totale : ~15 min 25** (la conclusion s'est allongée avec le retour terrain ; à absorber en parlant un peu plus vite sur les diapositives techniques, ou en écourtant légèrement l'intro).
 **Pratiquer avec un chronomètre avant la présentation.**
