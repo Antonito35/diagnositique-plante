@@ -34,6 +34,8 @@ class SensorState:
         self.sensor_code = sensor_code
         self.soil_moisture = random.uniform(35, 65)
         self.battery = random.uniform(70, 100)
+        # Nombre de relevés pendant lesquels le feuillage reste mouillé après une averse
+        self.wet_spell = 0
 
     def read(self) -> dict:
         now = datetime.now(timezone.utc)
@@ -46,14 +48,22 @@ class SensorState:
         # Le sol amortit les variations de l'air
         soil_temperature = 13 + 4 * daylight + random.uniform(-0.4, 0.4)
 
-        # Rosée nocturne, évaporation dès que le soleil monte
-        leaf_wetness = (88 - 70 * daylight) + random.uniform(-6, 6)
-
-        # Le sol s'assèche en journée ; averse aléatoire une fois sur vingt
+        # Le sol s'assèche en journée ; averse aléatoire une fois sur dix
         self.soil_moisture -= daylight * random.uniform(0.3, 0.9)
-        if random.random() < 0.05:
+        raining = random.random() < 0.10
+        if raining:
             self.soil_moisture += random.uniform(8, 20)
+            self.wet_spell = random.randint(3, 8)
         self.soil_moisture = min(100.0, max(8.0, self.soil_moisture))
+
+        # Rosée nocturne, évaporation dès que le soleil monte. Après une averse
+        # le feuillage reste mouillé quelle que soit l'heure : c'est cette
+        # combinaison pluie + douceur qui déclenche les maladies fongiques.
+        if self.wet_spell > 0:
+            leaf_wetness = random.uniform(82, 99)
+            self.wet_spell -= 1
+        else:
+            leaf_wetness = (88 - 70 * daylight) + random.uniform(-6, 6)
 
         self.battery = max(5.0, self.battery - random.uniform(0.01, 0.05))
 
