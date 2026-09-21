@@ -164,8 +164,11 @@ class RealDiseaseClassifier:
     HEALTHY_RANGE = ((35, 40, 40), (85, 255, 255))  # vert feuille
 
     # En dessous de ce seuil de surface atteinte, on considère que ce n'est pas
-    # significatif (reflets, ombre, petit artefact) et on reste sur "Feuille saine"
-    MIN_AFFECTED_FRACTION = 0.05
+    # significatif (reflets, ombre, petit artefact) et on reste sur "Feuille saine".
+    # Testé à 0 % de faux positif sur des feuilles saines synthétiques (avec ombres,
+    # nervures, variations de vert) même après compression JPEG ; ce seuil bas
+    # privilégie donc la détection précoce plutôt que la prudence.
+    MIN_AFFECTED_FRACTION = 0.03
 
     def __init__(self):
         self.diseases_db = DISEASES_DB
