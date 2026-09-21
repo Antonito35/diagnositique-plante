@@ -17,13 +17,14 @@ try:
     import requests
     from sqlalchemy.orm import Session
     import numpy as np
+    import cv2
     from PIL import Image
     from io import BytesIO
 except ImportError:
     print("❌ Dépendances manquantes. Installation...")
     import subprocess
     import sys
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "fastapi", "uvicorn", "python-multipart", "requests", "sqlalchemy", "pillow", "numpy", "-q"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "fastapi", "uvicorn", "python-multipart", "requests", "sqlalchemy", "pillow", "numpy", "opencv-python-headless", "-q"])
     from fastapi import FastAPI, File, UploadFile, HTTPException, status, Depends
     from fastapi.responses import JSONResponse, FileResponse
     from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +33,7 @@ except ImportError:
     import requests
     from sqlalchemy.orm import Session
     import numpy as np
+    import cv2
     from PIL import Image
     from io import BytesIO
 
@@ -141,9 +143,33 @@ DISEASES_DB = {
 # ============================================================================
 
 class RealDiseaseClassifier:
+    """
+    Analyse la PROPORTION de la feuille couverte par chaque couleur de symptôme
+    (via OpenCV, en espace HSV) plutôt que la couleur moyenne de toute la photo.
+
+    C'est le point important : une tache de rouille qui ne couvre que 10 % d'une
+    feuille très verte ne fait pratiquement pas bouger la couleur moyenne de
+    l'image, donc une classification par moyenne globale la rate systématiquement.
+    En mesurant la fraction de pixels dans la gamme de teinte caractéristique de
+    chaque maladie, une petite tache reste détectable même sur une grande feuille.
+    """
+
+    # Bornes HSV (convention OpenCV : H 0-179, S 0-255, V 0-255)
+    COLOR_RANGES = {
+        "Rouille du blé": ((3, 80, 140), (18, 255, 240)),      # orange-rouille vif et lumineux
+        "Mildiou du raisin": ((20, 100, 130), (36, 255, 255)), # jaune "tache d'huile", lumineux
+        "Septoriose": ((3, 60, 35), (24, 255, 130)),           # même famille de teinte, mais sombre
+        "Oïdium": ((0, 0, 150), (179, 30, 255)),                # blanc/gris poudreux, quasi sans saturation
+    }
+    HEALTHY_RANGE = ((35, 40, 40), (85, 255, 255))  # vert feuille
+
+    # En dessous de ce seuil de surface atteinte, on considère que ce n'est pas
+    # significatif (reflets, ombre, petit artefact) et on reste sur "Feuille saine"
+    MIN_AFFECTED_FRACTION = 0.05
+
     def __init__(self):
         self.diseases_db = DISEASES_DB
-        print("✅ Classifieur d'analyse d'image initialisé")
+        print("✅ Classifieur d'analyse d'image (OpenCV, zones de couleur) initialisé")
 
     def analyze_image(self, image_array: np.ndarray) -> tuple:
         # L'image arrive déjà en RGB (conversion faite avant l'appel), mais on
@@ -153,46 +179,50 @@ class RealDiseaseClassifier:
             image_array = np.stack([image_array] * 3, axis=-1)
         if image_array.ndim == 3 and image_array.shape[2] == 4:
             image_array = image_array[:, :, :3]
-        if image_array.ndim != 3 or image_array.shape[2] < 3:
-            # Image inexploitable (ex: 1 pixel, canal unique) : diagnostic par défaut
-            return "Feuille saine", 0.60
+        if image_array.ndim != 3 or image_array.shape[2] < 3 or image_array.size == 0:
+            return "Feuille saine", 0.60, 0.0
 
-        # Pas de sous-échantillonnage agressif sur les très petites images
-        step = 10 if min(image_array.shape[0], image_array.shape[1]) >= 20 else 1
-        img_small = image_array[::step, ::step, :3]
-        if img_small.size == 0:
-            img_small = image_array[:, :, :3]
+        image_array = np.ascontiguousarray(image_array[:, :, :3], dtype=np.uint8)
 
-        red = float(np.mean(img_small[:, :, 0]))
-        green = float(np.mean(img_small[:, :, 1]))
-        blue = float(np.mean(img_small[:, :, 2]))
+        # Limiter la résolution analysée : pas besoin de traiter une photo de
+        # téléphone à pleine taille pour mesurer des proportions de couleur
+        h, w = image_array.shape[:2]
+        if max(h, w) > 600:
+            scale = 600 / max(h, w)
+            image_array = cv2.resize(image_array, (int(w * scale), int(h * scale)),
+                                      interpolation=cv2.INTER_AREA)
 
-        saturation = float(np.max([red, green, blue]) - np.min([red, green, blue]))
-        brightness = float(np.mean(image_array))
-        contrast = float(np.std(image_array))
+        hsv = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
+        total_pixels = hsv.shape[0] * hsv.shape[1]
 
-        disease, confidence = self._classify_by_features(red, green, blue, saturation, contrast, brightness)
-        return disease, confidence
+        fractions = {}
+        for disease, (lo, hi) in self.COLOR_RANGES.items():
+            mask = cv2.inRange(hsv, np.array(lo), np.array(hi))
+            fractions[disease] = float(np.count_nonzero(mask)) / total_pixels
 
-    def _classify_by_features(self, red, green, blue, saturation, contrast, brightness):
-        if red > green + 20 and red > blue + 20 and saturation > 30:
-            confidence = min(0.95, 0.70 + (red - green) / 150)
-            return "Rouille du blé", confidence
-        elif brightness > 150 and saturation < 15 and contrast < 30:
-            confidence = min(0.92, 0.75 + (150 - saturation) / 200)
-            return "Mildiou du raisin", confidence
-        elif brightness > 160 and contrast < 25 and blue > green:
-            confidence = min(0.88, 0.70 + (160 - contrast) / 100)
-            return "Oïdium", confidence
-        elif green > 60 and green > red and (red > 80 or blue > 80) and contrast > 40:
-            confidence = min(0.85, 0.65 + contrast / 150)
-            return "Septoriose", confidence
-        elif green > red and green > blue and contrast > 30:
-            confidence = min(0.90, 0.70 + (green - red) / 100)
-            return "Feuille saine", confidence
-        else:
-            confidence = 0.65
-            return "Feuille saine", confidence
+        healthy_mask = cv2.inRange(hsv, np.array(self.HEALTHY_RANGE[0]), np.array(self.HEALTHY_RANGE[1]))
+        healthy_fraction = float(np.count_nonzero(healthy_mask)) / total_pixels
+
+        best_disease = max(fractions, key=fractions.get)
+        best_fraction = fractions[best_disease]
+
+        if best_fraction < self.MIN_AFFECTED_FRACTION:
+            # Pas assez de surface suspecte détectée : feuille saine
+            confidence = min(0.92, 0.55 + healthy_fraction * 0.4)
+            return "Feuille saine", confidence, 0.0
+
+        # Confiance : plus la zone atteinte est nette et étendue, plus le score monte
+        confidence = min(0.93, 0.55 + best_fraction * 1.1)
+        return best_disease, confidence, best_fraction
+
+    @staticmethod
+    def severity_from_fraction(affected_fraction: float) -> str:
+        """La sévérité reflète la surface réellement atteinte, pas une valeur figée par maladie."""
+        if affected_fraction >= 0.35:
+            return "Severe"
+        if affected_fraction >= 0.15:
+            return "Moderate"
+        return "Mild"
 
 classifier = None
 
@@ -258,8 +288,12 @@ async def diagnose(
 
     start_time = time.perf_counter()
     try:
-        disease_name, confidence = classifier.analyze_image(image_array)
+        disease_name, confidence, affected_fraction = classifier.analyze_image(image_array)
         disease_info = classifier.diseases_db[disease_name]
+        severity = (
+            "Mild" if disease_name == "Feuille saine"
+            else classifier.severity_from_fraction(affected_fraction)
+        )
 
         # Sauvegarder dans la base de données
         diagnostic = Diagnostic(
@@ -267,7 +301,7 @@ async def diagnose(
             parcel_id=parcel_id,
             disease_name=disease_name,
             confidence_score=round(confidence, 3),
-            severity=disease_info["severity"],
+            severity=severity,
             treatments=disease_info["treatments"],
             recommendation=disease_info["recommendation"]
         )
@@ -281,12 +315,14 @@ async def diagnose(
         db.commit()
         db.refresh(diagnostic)
 
-        print(f"✅ Diagnostic: {disease_name} ({confidence:.0%})")
+        print(f"✅ Diagnostic: {disease_name} ({confidence:.0%}, "
+              f"surface atteinte {affected_fraction:.0%})")
 
         return {
             "diagnosis": disease_name,
             "confidence": round(confidence, 3),
-            "severity": disease_info["severity"],
+            "affected_area_percent": round(affected_fraction * 100, 1),
+            "severity": severity,
             "treatments": disease_info["treatments"],
             "recommendation": disease_info["recommendation"],
             "timestamp": datetime.utcnow().isoformat(),
