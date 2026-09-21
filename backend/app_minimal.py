@@ -36,8 +36,9 @@ except ImportError:
 
 # Import database et models
 from database import get_db, init_db
-from models import User, Parcel, Diagnostic, DiseaseModel
-from routers import auth
+from models import User, Parcel, Diagnostic, SensorReading, DiseaseModel
+from routers import alerts, auth, sensors
+from schemas.parcels import ParcelIn
 
 # Initialiser la base de données au démarrage
 init_db()
@@ -50,6 +51,8 @@ app = FastAPI(
 
 # Include routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(sensors.router, prefix="/api/v1/sensors", tags=["capteurs IoT"])
+app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alertes"])
 
 # CORS
 app.add_middleware(
@@ -220,6 +223,12 @@ async def diagnose(
             recommendation=disease_info["recommendation"]
         )
         db.add(diagnostic)
+
+        if parcel_id:
+            parcel = db.query(Parcel).filter(Parcel.id == parcel_id).first()
+            if parcel:
+                parcel.last_diagnosis = disease_name
+
         db.commit()
         db.refresh(diagnostic)
 
@@ -261,46 +270,73 @@ async def get_history(user_id: int, limit: int = 10, db: Session = Depends(get_d
         for d in diagnostics
     ]
 
+@app.delete("/api/v1/history/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def clear_history(user_id: int, db: Session = Depends(get_db)):
+    db.query(Diagnostic).filter(Diagnostic.user_id == user_id).delete()
+    db.query(Parcel).filter(Parcel.user_id == user_id).update({Parcel.last_diagnosis: None})
+    db.commit()
+
+
 @app.get("/api/v1/parcels")
 async def list_parcels(user_id: int = 1, db: Session = Depends(get_db)):
     parcels = db.query(Parcel).filter(Parcel.user_id == user_id).all()
-    return [
-        {
-            "id": p.id,
-            "name": p.name,
-            "crop_type": p.crop_type,
-            "area_hectares": p.area_hectares,
-            "latitude": p.latitude,
-            "longitude": p.longitude,
-            "last_diagnosis": p.last_diagnosis,
-            "created_at": p.created_at.isoformat() if p.created_at else None
-        }
-        for p in parcels
-    ]
+    return [_parcel_out(p) for p in parcels]
 
-@app.post("/api/v1/parcels")
-async def create_parcel(
-    user_id: int = 1,
-    name: str = None,
-    crop_type: str = None,
-    area_hectares: float = None,
-    db: Session = Depends(get_db)
-):
-    parcel = Parcel(
-        user_id=user_id,
-        name=name,
-        crop_type=crop_type,
-        area_hectares=area_hectares
-    )
-    db.add(parcel)
-    db.commit()
-    db.refresh(parcel)
+def _parcel_out(parcel: Parcel) -> dict:
     return {
         "id": parcel.id,
         "name": parcel.name,
         "crop_type": parcel.crop_type,
-        "created_at": parcel.created_at.isoformat()
+        "area_hectares": parcel.area_hectares,
+        "latitude": parcel.latitude,
+        "longitude": parcel.longitude,
+        "last_diagnosis": parcel.last_diagnosis,
+        "created_at": parcel.created_at.isoformat() if parcel.created_at else None
     }
+
+
+@app.post("/api/v1/parcels", status_code=status.HTTP_201_CREATED)
+async def create_parcel(payload: ParcelIn, user_id: int = 1, db: Session = Depends(get_db)):
+    parcel = Parcel(
+        user_id=user_id,
+        name=payload.name,
+        crop_type=payload.crop_type,
+        area_hectares=payload.area_hectares,
+        latitude=payload.latitude,
+        longitude=payload.longitude
+    )
+    db.add(parcel)
+    db.commit()
+    db.refresh(parcel)
+    return _parcel_out(parcel)
+
+
+@app.put("/api/v1/parcels/{parcel_id}")
+async def update_parcel(parcel_id: int, payload: ParcelIn, db: Session = Depends(get_db)):
+    parcel = db.query(Parcel).filter(Parcel.id == parcel_id).first()
+    if not parcel:
+        raise HTTPException(status_code=404, detail="Parcelle introuvable")
+
+    parcel.name = payload.name
+    parcel.crop_type = payload.crop_type
+    parcel.area_hectares = payload.area_hectares
+    parcel.latitude = payload.latitude
+    parcel.longitude = payload.longitude
+    db.commit()
+    db.refresh(parcel)
+    return _parcel_out(parcel)
+
+
+@app.delete("/api/v1/parcels/{parcel_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_parcel(parcel_id: int, db: Session = Depends(get_db)):
+    parcel = db.query(Parcel).filter(Parcel.id == parcel_id).first()
+    if not parcel:
+        raise HTTPException(status_code=404, detail="Parcelle introuvable")
+
+    db.query(SensorReading).filter(SensorReading.parcel_id == parcel_id).delete()
+    db.query(Diagnostic).filter(Diagnostic.parcel_id == parcel_id).delete()
+    db.delete(parcel)
+    db.commit()
 
 @app.get("/api/v1/weather")
 async def get_weather(latitude: float, longitude: float):

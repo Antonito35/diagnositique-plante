@@ -505,6 +505,135 @@
             font-size: 12px;
             font-weight: 500;
         }
+
+        .alert-source {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 8px;
+            background: rgba(0,0,0,0.06);
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .parcel-sensor {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
+        .sensor-chip {
+            display: inline-block;
+            padding: 2px 7px;
+            background: #e8f5e9;
+            color: #1e7e34;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .sensor-warn {
+            color: #d35400;
+            font-weight: 600;
+        }
+
+        .sensor-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: white;
+        }
+
+        .sensor-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .sensor-parcel {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .sensor-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 10px;
+        }
+
+        .status-online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .sensor-metric {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 10px 12px;
+        }
+
+        .sensor-metric-label {
+            font-size: 10px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .sensor-metric-value {
+            font-size: 17px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 3px;
+        }
+
+        .sensor-time {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #95a5a6;
+        }
+
+        .network-box {
+            background: #f0f8f5;
+            border-left: 3px solid #27ae60;
+            border-radius: 4px;
+            padding: 14px;
+            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .network-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .network-stat-label {
+            font-size: 10px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
         .error.show, .success.show {
@@ -669,6 +798,7 @@
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="showPage('parcels')">Mes parcelles</button>
             <button class="nav-tab" onclick="showPage('quickDiag')">Diagnostic</button>
+            <button class="nav-tab" onclick="showPage('sensors')">Capteurs</button>
             <button class="nav-tab" onclick="showPage('history')">Historique</button>
             <button class="nav-tab" onclick="showPage('alerts')">Alertes</button>
         </div>
@@ -678,6 +808,16 @@
             <div class="content">
                 <div class="section-title">Alertes Agricoles Intelligentes</div>
                 <div id="alertsList"></div>
+            </div>
+        </div>
+
+        <!-- CAPTEURS PAGE -->
+        <div id="sensors" class="page">
+            <div class="content">
+                <div class="section-title">Réseau de capteurs IoT</div>
+                <div id="networkSummary"></div>
+                <div class="section-title">Derniers relevés</div>
+                <div id="sensorsList"></div>
             </div>
         </div>
 
@@ -906,8 +1046,10 @@
 
     <script>
         const API_URL = '';
+        const USER_ID = 1;
         let selectedParcel = null;
         let allParcels = [];
+        let latestSensors = {};
         let allDiagnostics = [];
         let editingParcelId = null;
 
@@ -958,16 +1100,31 @@
         async function loadData() {
             loadFavoriteCities();
             await initGeolocation();
-            const saved = localStorage.getItem('parcels');
-            if (saved) allParcels = JSON.parse(saved);
             const savedDiag = localStorage.getItem('diagnostics');
             if (savedDiag) allDiagnostics = JSON.parse(savedDiag);
+            await loadParcels();
+        }
+
+        async function loadParcels() {
+            try {
+                const [parcelsRes, sensorsRes] = await Promise.all([
+                    fetch(`${API_URL}/api/v1/parcels?user_id=${USER_ID}`),
+                    fetch(`${API_URL}/api/v1/sensors/latest?user_id=${USER_ID}`)
+                ]);
+                allParcels = await parcelsRes.json();
+                const sensors = await sensorsRes.json();
+                latestSensors = {};
+                sensors.forEach(s => { if (s.reading) latestSensors[s.parcel_id] = s.reading; });
+            } catch (error) {
+                console.error('Chargement des parcelles impossible:', error);
+                allParcels = [];
+            }
             displayParcels();
         }
 
-        function createParcel() {
-            const name = document.getElementById('newParcelName').value;
-            const cropType = document.getElementById('newCropType').value;
+        async function createParcel() {
+            const name = document.getElementById('newParcelName').value.trim();
+            const cropType = document.getElementById('newCropType').value.trim();
 
             if (!name) {
                 showError('Entrez un nom pour la parcelle', 'errorMsg');
@@ -978,20 +1135,37 @@
                 return;
             }
 
-            const parcel = {
-                id: Date.now(),
-                name: name,
-                crop_type: cropType,
-                created_at: new Date().toISOString(),
-                last_diagnosis: null
-            };
+            try {
+                const response = await fetch(`${API_URL}/api/v1/parcels?user_id=${USER_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, crop_type: cropType })
+                });
+                if (!response.ok) throw new Error('Création refusée');
 
-            allParcels.push(parcel);
-            localStorage.setItem('parcels', JSON.stringify(allParcels));
-            document.getElementById('newParcelName').value = '';
-            document.getElementById('newCropType').value = '';
-            displayParcels();
-            showSuccess('Parcelle créée', 'successMsg');
+                document.getElementById('newParcelName').value = '';
+                document.getElementById('newCropType').value = '';
+                await loadParcels();
+                showSuccess('Parcelle enregistrée en base', 'successMsg');
+            } catch (error) {
+                showError('Création impossible : ' + error.message, 'errorMsg');
+            }
+        }
+
+        function sensorSummary(parcelId) {
+            const r = latestSensors[parcelId];
+            if (!r) return '<div class="parcel-sensor">Capteur en attente de première trame</div>';
+
+            const dry = r.soil_moisture_percent < 25;
+            const wet = r.leaf_wetness_percent >= 70;
+            return `
+                <div class="parcel-sensor">
+                    <span class="sensor-chip">${r.sensor_code}</span>
+                    <span class="${dry ? 'sensor-warn' : ''}">Sol ${r.soil_moisture_percent}%</span> ·
+                    <span>Air ${r.air_temperature_celsius}°C</span> ·
+                    <span class="${wet ? 'sensor-warn' : ''}">Feuillage ${r.leaf_wetness_percent}%</span>
+                </div>
+            `;
         }
 
         function displayParcels() {
@@ -1011,6 +1185,7 @@
                     <div onclick="selectParcel(${p.id})">
                         ${p.last_diagnosis ? `<span class="parcel-badge badge-${p.last_diagnosis === 'Feuille saine' ? 'ok' : 'alert'}">${p.last_diagnosis}</span>` : '<span class="parcel-badge badge-empty">Pas diagnostiqué</span>'}
                     </div>
+                    ${sensorSummary(p.id)}
                 </div>
             `).join('');
             document.getElementById('parcelsList').innerHTML = html;
@@ -1031,30 +1206,42 @@
             document.getElementById('editModal').classList.add('active');
         }
 
-        function saveParcelEdit() {
-            const name = document.getElementById('editParcelName').value;
-            const cropType = document.getElementById('editCropType').value;
+        async function saveParcelEdit() {
+            const name = document.getElementById('editParcelName').value.trim();
+            const cropType = document.getElementById('editCropType').value.trim();
 
             if (!name || !cropType) {
                 showError('Complétez tous les champs', 'errorMsg');
                 return;
             }
 
-            const parcel = allParcels.find(p => p.id === editingParcelId);
-            parcel.name = name;
-            parcel.crop_type = cropType;
-            localStorage.setItem('parcels', JSON.stringify(allParcels));
-            displayParcels();
-            closeModal();
-            showSuccess('Parcelle modifiée', 'successMsg');
+            try {
+                const response = await fetch(`${API_URL}/api/v1/parcels/${editingParcelId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, crop_type: cropType })
+                });
+                if (!response.ok) throw new Error('Modification refusée');
+
+                closeModal();
+                await loadParcels();
+                showSuccess('Parcelle modifiée', 'successMsg');
+            } catch (error) {
+                showError('Modification impossible : ' + error.message, 'errorMsg');
+            }
         }
 
-        function deleteParcel(parcelId) {
-            if (confirm('Supprimer cette parcelle ?')) {
-                allParcels = allParcels.filter(p => p.id !== parcelId);
-                localStorage.setItem('parcels', JSON.stringify(allParcels));
-                displayParcels();
+        async function deleteParcel(parcelId) {
+            if (!confirm('Supprimer cette parcelle, ses diagnostics et ses relevés ?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/parcels/${parcelId}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Suppression refusée');
+
+                await loadParcels();
                 showSuccess('Parcelle supprimée', 'successMsg');
+            } catch (error) {
+                showError('Suppression impossible : ' + error.message, 'errorMsg');
             }
         }
 
@@ -1074,6 +1261,7 @@
 
             if (page === 'history') displayHistory();
             if (page === 'alerts') displayAlerts();
+            if (page === 'sensors') displaySensors();
         }
 
         // Photo handling
@@ -1112,13 +1300,15 @@
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('user_id', 1);
+
+            // user_id et parcel_id sont des paramètres de requête côté API, pas des champs du formulaire
+            const params = new URLSearchParams({ user_id: USER_ID });
             if (isParcell && selectedParcel) {
-                formData.append('parcel_id', selectedParcel.id);
+                params.append('parcel_id', selectedParcel.id);
             }
 
             try {
-                const response = await fetch(`${API_URL}/api/v1/diagnose`, {
+                const response = await fetch(`${API_URL}/api/v1/diagnose?${params}`, {
                     method: 'POST',
                     body: formData
                 });
@@ -1140,23 +1330,9 @@
             }
         }
 
-        function saveDiagnostic(data) {
-            const diagnostic = {
-                id: Date.now(),
-                parcel: selectedParcel.name,
-                disease: data.diagnosis,
-                confidence: Math.round(data.confidence * 100),
-                severity: data.severity,
-                date: new Date().toLocaleDateString('fr-FR'),
-                time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            allDiagnostics.unshift(diagnostic);
-            localStorage.setItem('diagnostics', JSON.stringify(allDiagnostics));
-
-            selectedParcel.last_diagnosis = data.diagnosis;
-            localStorage.setItem('parcels', JSON.stringify(allParcels));
-            displayParcels();
+        // Le diagnostic est déjà écrit en base par l'API : on rafraîchit seulement l'affichage
+        async function saveDiagnostic(data) {
+            await loadParcels();
         }
 
         function displayResult(data, isParcell) {
@@ -1245,102 +1421,164 @@
                 });
         }
 
-        function clearHistory() {
-            if (confirm('Êtes-vous sûr ? Cette action est irréversible.')) {
+        async function clearHistory() {
+            if (!confirm('Supprimer tout l\'historique ? Cette action est irréversible.')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/history/${USER_ID}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Suppression refusée');
+
                 allDiagnostics = [];
-                localStorage.setItem('diagnostics', JSON.stringify(allDiagnostics));
                 displayHistory();
+                await loadParcels();
                 showSuccess('Historique supprimé', 'successMsg');
+            } catch (error) {
+                showError('Suppression impossible : ' + error.message, 'errorMsg');
             }
         }
 
-        function displayAlerts() {
-            const alertsList = document.getElementById('alertsList');
-            alertsList.innerHTML = '<div class="empty-state">Chargement des alertes...</div>';
+        async function displaySensors() {
+            const summary = document.getElementById('networkSummary');
+            const list = document.getElementById('sensorsList');
+            summary.innerHTML = '';
+            list.innerHTML = '<div class="empty-state">Interrogation du réseau...</div>';
 
-            // Récupérer les données météo pour la localisation actuelle
-            fetch(`${API_URL}/api/v1/weather?latitude=${currentWeatherLat}&longitude=${currentWeatherLon}`)
-                .then(r => r.json())
-                .then(weather => {
-                    currentWeatherData = weather;
-                    let alerts = [];
+            try {
+                const [networkRes, readingsRes] = await Promise.all([
+                    fetch(`${API_URL}/api/v1/sensors/network`),
+                    fetch(`${API_URL}/api/v1/sensors/latest?user_id=${USER_ID}`)
+                ]);
+                const network = await networkRes.json();
+                const readings = await readingsRes.json();
 
-                    // Alerte 1 : Diagnostics récents avec maladie
-                    if (allDiagnostics.length > 0) {
-                        const recentDiag = allDiagnostics[0];
-                        if (recentDiag.disease && recentDiag.disease !== 'Feuille saine') {
-                            alerts.push({
-                                level: 'danger',
-                                title: '⚠️ Maladie Détectée',
-                                text: `${recentDiag.disease} détectée avec ${Math.round(recentDiag.confidence * 100)}% de certitude`,
-                                risk: 'Risque : ÉLEVÉ - Action requise immédiatement'
-                            });
-                        }
-                    }
-
-                    // Alerte 2 : Risques météo par région (basé sur localisation actuelle)
-                    const current = weather.current;
-                    const diseaseRisks = weather.disease_risk;
-                    let riskLevel = 'info';
-                    let riskTitle = '🌦️ Conditions Favorables';
-                    let riskText = 'Conditions actuelles: ' + current.condition;
-                    let riskDesc = `Température: ${current.temperature_celsius}°C, Humidité: ${current.humidity_percent}%`;
-
-                    // Déterminer le niveau d'alerte météo
-                    if (current.humidity_percent > 80 && current.temperature_celsius >= 15 && current.temperature_celsius <= 25) {
-                        riskLevel = 'warning';
-                        riskTitle = '⚠️ Conditions Favorables aux Maladies';
-                        riskText = 'Votre région a des conditions idéales pour le développement des maladies';
-                        riskDesc = `Humidité ${current.humidity_percent}% + Température ${current.temperature_celsius}°C = Risque élevé`;
-                    }
-
-                    if (diseaseRisks.mildew > 70 || diseaseRisks.powdery_mildew > 70 || diseaseRisks.rust > 70) {
-                        riskLevel = 'danger';
-                        riskTitle = '🚨 Alerte Risque de Maladie';
-                        const topRisk = Object.entries(diseaseRisks).sort((a, b) => b[1] - a[1])[0];
-                        riskText = `Risque très élevé pour cette région: ${topRisk[0].replace('_', ' ')} (${topRisk[1]}%)`;
-                        riskDesc = `Mildiou: ${diseaseRisks.mildew}% | Oïdium: ${diseaseRisks.powdery_mildew}% | Rouille: ${diseaseRisks.rust}%`;
-                    }
-
-                    alerts.push({
-                        level: riskLevel,
-                        title: riskTitle,
-                        text: riskText + ' à ' + currentWeatherLocation,
-                        risk: riskDesc
-                    });
-
-                    // Alerte 3 : Recommandations localisées
-                    let recommendation = 'Vérifiez vos parcelles régulièrement';
-                    if (diseaseRisks.mildew > 50 || diseaseRisks.powdery_mildew > 50) {
-                        recommendation = 'Inspectez vos cultures pour détecter tout signe de maladie - risque élevé cette semaine';
-                    }
-
-                    alerts.push({
-                        level: 'info',
-                        title: '💡 Recommandation Régionale',
-                        text: recommendation,
-                        risk: `Zone: ${currentWeatherLocation} | Fréquence inspection: 2-3 fois/semaine`
-                    });
-
-                    if (alerts.length === 0) {
-                        alertsList.innerHTML = '<div class="empty-state">Aucune alerte pour le moment</div>';
-                        return;
-                    }
-
-                    const html = alerts.map(alert => `
-                        <div class="alert-item ${alert.level}">
-                            <div class="alert-title">${alert.title}</div>
-                            <div class="alert-text">${alert.text}</div>
-                            <div class="alert-risk">📊 ${alert.risk}</div>
+                summary.innerHTML = `
+                    <div class="network-box">
+                        <div>
+                            <div class="network-stat-value">${network.sensors_total}</div>
+                            <div class="network-stat-label">Capteurs</div>
                         </div>
-                    `).join('');
+                        <div>
+                            <div class="network-stat-value">${network.sensors_online}</div>
+                            <div class="network-stat-label">En ligne</div>
+                        </div>
+                        <div>
+                            <div class="network-stat-value">${network.readings_total}</div>
+                            <div class="network-stat-label">Relevés</div>
+                        </div>
+                    </div>
+                `;
 
-                    alertsList.innerHTML = html;
-                })
-                .catch(err => {
-                    console.error('Erreur chargement alertes:', err);
-                    alertsList.innerHTML = '<div class="empty-state">Erreur chargement alertes</div>';
+                const online = {};
+                network.sensors.forEach(s => { online[s.sensor_code] = s.online; });
+
+                const withData = readings.filter(r => r.reading);
+                if (withData.length === 0) {
+                    list.innerHTML = '<div class="empty-state">Aucun relevé reçu pour le moment</div>';
+                    return;
+                }
+
+                list.innerHTML = withData.map(item => {
+                    const r = item.reading;
+                    const isOnline = online[r.sensor_code];
+                    return `
+                        <div class="sensor-card">
+                            <div class="sensor-head">
+                                <div>
+                                    <div class="sensor-parcel">${item.parcel_name}</div>
+                                    <div class="parcel-info">${item.crop_type} · ${r.sensor_code}</div>
+                                </div>
+                                <span class="sensor-status ${isOnline ? 'status-online' : 'status-offline'}">
+                                    ${isOnline ? 'En ligne' : 'Hors ligne'}
+                                </span>
+                            </div>
+                            <div class="sensor-grid">
+                                <div class="sensor-metric">
+                                    <div class="sensor-metric-label">Humidité du sol</div>
+                                    <div class="sensor-metric-value">${r.soil_moisture_percent} %</div>
+                                </div>
+                                <div class="sensor-metric">
+                                    <div class="sensor-metric-label">Température du sol</div>
+                                    <div class="sensor-metric-value">${r.soil_temperature_celsius} °C</div>
+                                </div>
+                                <div class="sensor-metric">
+                                    <div class="sensor-metric-label">Température de l'air</div>
+                                    <div class="sensor-metric-value">${r.air_temperature_celsius} °C</div>
+                                </div>
+                                <div class="sensor-metric">
+                                    <div class="sensor-metric-label">Humidité de l'air</div>
+                                    <div class="sensor-metric-value">${r.air_humidity_percent} %</div>
+                                </div>
+                                <div class="sensor-metric">
+                                    <div class="sensor-metric-label">Humectation foliaire</div>
+                                    <div class="sensor-metric-value">${r.leaf_wetness_percent} %</div>
+                                </div>
+                                <div class="sensor-metric">
+                                    <div class="sensor-metric-label">Batterie</div>
+                                    <div class="sensor-metric-value">${r.battery_percent} %</div>
+                                </div>
+                            </div>
+                            <div class="sensor-time">Dernière trame : ${new Date(r.recorded_at + 'Z').toLocaleString('fr-FR')}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Lecture des capteurs impossible:', error);
+                list.innerHTML = '<div class="empty-state">Réseau de capteurs injoignable</div>';
+            }
+        }
+
+        async function displayAlerts() {
+            const alertsList = document.getElementById('alertsList');
+            alertsList.innerHTML = '<div class="empty-state">Analyse des capteurs et des diagnostics...</div>';
+
+            try {
+                // Les alertes terrain sont calculées par le serveur à partir des relevés IoT
+                // et des diagnostics ; la météo dépend de la ville choisie côté client.
+                const [serverRes, weatherRes] = await Promise.all([
+                    fetch(`${API_URL}/api/v1/alerts/${USER_ID}`),
+                    fetch(`${API_URL}/api/v1/weather?latitude=${currentWeatherLat}&longitude=${currentWeatherLon}`)
+                ]);
+
+                const alerts = await serverRes.json();
+                const weather = await weatherRes.json();
+                currentWeatherData = weather;
+
+                const risks = weather.disease_risk;
+                const topRisk = Object.entries(risks).sort((a, b) => b[1] - a[1])[0];
+                const riskLabels = {
+                    mildew: 'mildiou',
+                    powdery_mildew: 'oïdium',
+                    rust: 'rouille',
+                    leaf_blight: 'brûlure des feuilles'
+                };
+
+                alerts.push({
+                    level: topRisk[1] > 70 ? 'danger' : (topRisk[1] > 45 ? 'warning' : 'info'),
+                    source: 'Météo',
+                    parcel: null,
+                    title: `Risque régional : ${riskLabels[topRisk[0]] || topRisk[0]}`,
+                    text: `${topRisk[1]} % de risque à ${currentWeatherLocation}, `
+                        + `avec ${weather.current.temperature_celsius} °C et `
+                        + `${weather.current.humidity_percent} % d'humidité.`,
+                    detail: `Mildiou ${risks.mildew} % · Oïdium ${risks.powdery_mildew} % · `
+                        + `Rouille ${risks.rust} % · Brûlure ${risks.leaf_blight} %`
                 });
+
+                const order = { danger: 0, warning: 1, info: 2 };
+                alerts.sort((a, b) => order[a.level] - order[b.level]);
+
+                alertsList.innerHTML = alerts.map(a => `
+                    <div class="alert-item ${a.level}">
+                        <div class="alert-title">${a.title}${a.parcel ? ' — ' + a.parcel : ''}</div>
+                        <div class="alert-text">${a.text}</div>
+                        <div class="alert-risk">${a.detail}</div>
+                        <span class="alert-source">${a.source}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Chargement des alertes impossible:', error);
+                alertsList.innerHTML = '<div class="empty-state">Alertes indisponibles</div>';
+            }
         }
 
         // Weather

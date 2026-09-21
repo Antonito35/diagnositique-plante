@@ -32,6 +32,7 @@ class Parcel(Base):
 
     user = relationship("User", back_populates="parcels")
     diagnostics = relationship("Diagnostic", back_populates="parcel")
+    sensor_readings = relationship("SensorReading", back_populates="parcel")
 
 class Diagnostic(Base):
     __tablename__ = "diagnostics"
@@ -48,6 +49,24 @@ class Diagnostic(Base):
 
     user = relationship("User", back_populates="diagnostics")
     parcel = relationship("Parcel", back_populates="diagnostics")
+
+class SensorReading(Base):
+    """Relevé transmis par un capteur IoT installé sur une parcelle."""
+    __tablename__ = "sensor_readings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    parcel_id = Column(Integer, ForeignKey("parcels.id"), index=True)
+    sensor_code = Column(String, index=True)
+    soil_moisture_percent = Column(Float)
+    soil_temperature_celsius = Column(Float)
+    air_temperature_celsius = Column(Float)
+    air_humidity_percent = Column(Float)
+    # Durée d'humectation du feuillage : principal facteur de risque fongique
+    leaf_wetness_percent = Column(Float)
+    battery_percent = Column(Float)
+    recorded_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    parcel = relationship("Parcel", back_populates="sensor_readings")
 
 class WeatherHistory(Base):
     __tablename__ = "weather_history"
