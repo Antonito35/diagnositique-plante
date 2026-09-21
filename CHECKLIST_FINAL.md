@@ -29,10 +29,10 @@
 
 ### **Authentification & Données ✅**
 - [x] Système JWT fonctionnel
-- [x] Registration/Login endpoints
+- [x] Endpoints d'inscription et de connexion
 - [x] PostgreSQL persistant
 - [x] Historique sauvegardé en BD
-- [x] Confiance affichée correctement (87% pas 1%)
+- [x] Indice de confiance affiché correctement (bug d'affichage corrigé)
 
 ### **Infrastructure ✅**
 - [x] Conteneurs Docker (API, PostgreSQL, Redis, simulateur IoT)
@@ -142,9 +142,8 @@ qualité fixés par nous-mêmes.
 | Déploiement | CDC | Cloud | AWS en ligne | ✅ |
 | Capteurs IoT | CDC | simulés ou réels | 2 capteurs simulés, 6 mesures | ✅ |
 | Documentation | CDC | Complète | 8 documents | ✅ |
-| Endpoints | Objectif interne | 5+ | 18 | ✅ +260% |
+| Endpoints | Objectif interne | 5+ | 18 | ✅ |
 | Temps réponse | Objectif interne | < 2s | ~1,5s | ✅ |
-| Précision IA | Objectif interne | > 85% | 87% | ✅ |
 | Disponibilité | Objectif interne | 24/7 | Oui | ✅ |
 
 ---
@@ -251,7 +250,7 @@ Documentation        : 8/8   ✅
 Déploiement          : EN LIGNE ✅
 Temps de réponse     : 1,5 s ✅
 Sécurité             : JWT   ✅
-Précision de l'IA    : 87 %  ✅
+Diagnostic IA        : fonctionnel ✅
 Capteurs IoT         : actifs ✅
 
 STATUT GLOBAL : 🟢 PRÊT POUR LA PRODUCTION

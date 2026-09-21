@@ -27,7 +27,7 @@
 
 ### **IV. Fonctionnalités principales ✅**
 - ✅ **Tableau de bord** : parcelles, capteurs, historique, alertes
-- ✅ **Diagnostic IA** : photo → analyse → résultat (87 % de précision)
+- ✅ **Diagnostic IA** : photo → analyse → résultat avec indice de confiance
 - ✅ **Capteurs IoT** : surveillance continue des parcelles
 - ✅ **Gestion des parcelles** : créer, éditer, supprimer
 - ✅ **Météo en temps réel** : API Open-Meteo intégrée
@@ -60,7 +60,7 @@
 - ✅ Pertinence de la solution (diagnostic agricole réel)
 - ✅ Qualité du développement (code propre, architecture évolutive)
 - ✅ Fonctionnalités réalisées (18 endpoints API)
-- ✅ Intégration IA (87 % de précision)
+- ✅ Intégration IA (analyse d'image OpenCV fonctionnelle)
 - ✅ Infrastructure cloud (production-ready)
 
 ---
@@ -70,7 +70,7 @@
 ### **Fonctionnalités principales ✅**
 ```
 ✅ Diagnostic par photo (IA)
-✅ Analyse de maladie (87 % de précision)
+✅ Analyse de maladie (4 maladies + état sain)
 ✅ Sauvegarde en base (PostgreSQL)
 ✅ Historique des diagnostics
 ✅ Capteurs IoT (2 boîtiers simulés, 6 mesures/minute)
@@ -129,9 +129,8 @@ autres sont des objectifs de qualité que nous nous sommes fixés nous-mêmes.
 | **Architecture** | CDC | Diagramme réseau | Terrain IoT + 4 tiers | ✅ |
 | **Documentation** | CDC | Complète | 8 documents | ✅ |
 | **Capteurs IoT** | CDC | Simulés ou réels | 2 capteurs, 6 mesures | ✅ |
-| **Endpoints API** | Objectif interne | 5+ | 18 | ✅ +260 % |
-| **Temps de réponse** | Objectif interne | < 2 s | ~1,5 s | ✅ -25 % |
-| **Précision de l'IA** | Objectif interne | > 85 % | 87 % | ✅ +2 pts |
+| **Endpoints API** | Objectif interne | 5+ | 18 | ✅ |
+| **Temps de réponse** | Objectif interne | < 2 s | ~1,5 s | ✅ |
 | **Sécurité** | Bonne pratique | JWT | Bcrypt + JWT | ✅ |
 
 ---
@@ -242,7 +241,7 @@ Documentation         : 8/8    ✅
 Déploiement           : ✅ En ligne
 Temps de réponse      : ✅ 1,5 s
 Sécurité              : ✅ JWT + Bcrypt
-Précision de l'IA     : ✅ 87 %
+Diagnostic IA         : ✅ Fonctionnel
 Capteurs IoT          : ✅ Actifs
 
 🟢 STATUT GLOBAL   : PRÊT POUR LA PRODUCTION

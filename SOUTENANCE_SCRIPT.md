@@ -114,7 +114,7 @@ Tout est testable en direct via Swagger, à l'adresse slash docs."
 
 On reçoit la photo, OpenCV analyse la couleur, la saturation, le contraste et la texture, on compare ces caractéristiques aux signatures des maladies connues, et on retourne la plus probable avec un indice de confiance.
 
-Précision : 87 %, au-dessus des 85 % que nous nous étions fixés comme objectif. Performance : réponse en 1,5 seconde."
+Réponse en 1,5 seconde, ce qui rend l'outil utilisable directement dans le champ."
 
 ---
 
@@ -139,7 +139,7 @@ C'est de la production, pas une démonstration sur un ordinateur portable."
 ## SLIDE 13 - RÉSULTATS MESURÉS (40 secondes)
 
 **À dire :**
-"Le cahier des charges ne fixe pas de seuil chiffré : nous nous sommes fixé nos propres objectifs de qualité, et ils sont tous dépassés. 18 endpoints livrés pour un objectif de 5. 1,5 seconde de temps de réponse contre un objectif de moins de 2 secondes. 87 % de précision contre un objectif de 85 %. Un relevé par minute et par capteur, soit une surveillance continue.
+"Le cahier des charges ne fixe pas de seuil chiffré : nous nous sommes fixé nos propres objectifs de qualité, et ils sont tous dépassés. 18 endpoints livrés pour un objectif de 5. 1,5 seconde de temps de réponse contre un objectif de moins de 2 secondes. Un relevé par minute et par capteur, soit une surveillance continue.
 
 Les exigences explicites du CDC, elles, sont toutes respectées : les 3 technologies imposées, le déploiement cloud, l'architecture avec capteurs IoT, et la documentation complète."
 
@@ -187,8 +187,11 @@ R : "Parce que toute la chaîne d'intelligence artificielle est en Python : Open
 **Q : "Comment fonctionne exactement l'IA ?"**
 R : "C'est de la vision par ordinateur classique, pas du deep learning. OpenCV extrait des caractéristiques de l'image - couleur, saturation, contraste, texture - et je les compare aux signatures des maladies connues."
 
-**Q : "Pourquoi 87 % de précision et pas 99 % ?"**
-R : "Un réseau de neurones convolutif ferait mieux, mais demanderait un jeu de données annoté et beaucoup plus de ressources serveur. Pour une première indication fiable en une seconde, 87 % est pertinent. C'est aussi une évolution possible du projet."
+**Q : "Est-ce que le diagnostic est toujours fiable ?"**
+R : "Non, et c'est important de le dire : c'est une analyse heuristique sur des critères visuels simples, pas un modèle entraîné et validé sur un jeu de données étiqueté. Elle donne une première indication utile, pas un diagnostic médical certifié. Un réseau de neurones convolutif entraîné sur des photos annotées irait plus loin, c'est une évolution possible du projet."
+
+**Q : "Comment sauriez-vous si le diagnostic se trompe ?"**
+R : "Aujourd'hui, il n'y a pas de validation automatique : c'est à l'agriculteur de confirmer avec son expérience ou un technicien si le doute persiste. C'est justement pourquoi on affiche un indice de confiance plutôt qu'une réponse binaire, et pourquoi on ne prétend pas à un taux de précision qu'on n'a jamais mesuré sur un vrai jeu de test."
 
 **Q : "Pourquoi PostgreSQL plutôt que MongoDB ?"**
 R : "Parce que le modèle est relationnel : utilisateur, parcelle, diagnostic, relevé de capteur. PostgreSQL garantit les transactions ACID."

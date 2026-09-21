@@ -29,7 +29,7 @@
    - "Blé - 5 hectares"
 3. Uploader une photo (ou utiliser exemple)
 4. Montrer le diagnostic
-   - "Rouille du blé - Confiance : 87%"
+   - "Rouille du blé détectée"
    - "Traitement recommandé : Fongicide X"
 5. Montrer l'historique
 6. Montrer la météo
@@ -86,7 +86,7 @@
 **À dire :**
 - "L'IA analyse les caractéristiques visuelles de la plante"
 - "Elle reconnaît 4 maladies et l'état sain"
-- "Précision : 87 % - Fiable pour une première indication"
+- "Chaque diagnostic est accompagné d'un indice de confiance"
 - "La météo améliore la prédiction"
 - "Exemple : Si humidité > 80% + température 15-25°C → Risque mildiou élevé"
 
@@ -149,7 +149,7 @@
 ```
 ✅ Application 100% fonctionnelle
 ✅ Diagnostic en < 2 secondes
-✅ 87% de précision
+✅ Diagnostic avec indice de confiance
 ✅ Déployée en production (AWS)
 ✅ Interface intuitive
 ✅ Accessible sur mobile
@@ -177,7 +177,7 @@
 **Soyez prêt pour les questions :**
 
 **Q : Comment l'IA reconnaît les maladies ?**
-R : "L'IA analyse la couleur, la texture, et les patterns visuels de la plante. Elle a été entraînée sur des milliers d'images de maladies."
+R : "L'IA analyse la couleur, la saturation, le contraste et la texture de la photo avec OpenCV, et compare ces caractéristiques aux signatures connues de chaque maladie. Ce n'est pas un modèle entraîné sur une base d'images : c'est de la vision par ordinateur classique, plus simple et plus rapide à faire tourner."
 
 **Q : Ça marche sans connexion ?**
 R : "Non, l'app a besoin d'une connexion internet pour la météo et la base de données. Mais c'est normal pour une app agricole."
@@ -209,7 +209,7 @@ R : "AWS est le leader du cloud, avec une infrastructure conçue pour une haute 
 ✅ Montrer l'application en action
 ✅ Expliquer l'impact concret pour l'agriculteur
 ✅ Utiliser des diagrammes
-✅ Parler des résultats (87 % de précision, < 2 s de réponse)
+✅ Parler des résultats (diagnostic fiable, < 2 s de réponse)
 ✅ Parler de l'infrastructure cloud
 ✅ Montrer l'interface utilisateur
 ✅ Être confiant et naturel

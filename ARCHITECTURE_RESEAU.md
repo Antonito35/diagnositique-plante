@@ -125,7 +125,7 @@
    ↓
 3. OpenCV analyse l'image
    ↓
-4. Diagnostic généré (87% accuracy)
+4. Diagnostic généré avec indice de confiance
    ↓
 5. Sauvegarde → PostgreSQL
    ↓

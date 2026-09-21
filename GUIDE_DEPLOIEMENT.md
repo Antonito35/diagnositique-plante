@@ -198,7 +198,6 @@ CREATE TABLE sensor_readings (
 | Métrique | Valeur mesurée |
 |----------|----------------|
 | Temps de réponse du diagnostic | ~1,5 s |
-| Précision du diagnostic IA | 87 % |
 | Fréquence des relevés capteurs | 1 par minute et par parcelle |
 | Instance de déploiement | AWS EC2 t2.micro (1 vCPU, 1 Go RAM) |
 
