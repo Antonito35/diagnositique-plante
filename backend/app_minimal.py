@@ -5,6 +5,7 @@ Diagnostic agricole avec IA et persistance données
 
 from datetime import datetime
 import os
+import time
 from typing import Optional
 
 try:
@@ -78,7 +79,10 @@ DISEASES_DB = {
         "recommendation": "Traite tout de suite ! La maladie se propage vite.",
         "treatments": {
             "preventive": "Planter autre chose l'année prochaine sur ce champ. Enlever les feuilles mortes.",
-            "biological": "Pulvériser un produit naturel à base de bactéries bénéfiques.",
+            "biological": "Pulvériser un produit naturel à base de bactéries bénéfiques. "
+                          "Désherbage mécanique (herse étrille ou houe rotative) possible du stade "
+                          "2-3 feuilles jusqu'à la fin du tallage (avant épi 1 cm) : au-delà, la tige "
+                          "monte et devient trop fragile pour passer un outil sans l'abîmer.",
             "conventional": "Utiliser un produit chimique contre les champignons."
         }
     },
@@ -87,7 +91,10 @@ DISEASES_DB = {
         "recommendation": "C'est URGENT ! Traite immédiatement sinon tu perdras toute ta récolte.",
         "treatments": {
             "preventive": "Tailler les branches pour laisser passer l'air. Éviter d'arroser les feuilles.",
-            "biological": "Pulvériser du cuivre ou du soufre (produits naturels).",
+            "biological": "Pulvériser du cuivre ou du soufre (produits naturels). "
+                          "Travail mécanique du rang (décavaillonnage, griffage) à faire avant le "
+                          "débourrement ou après la nouaison : éviter tout passage d'outil pendant "
+                          "la floraison, qui est fragile et sensible aux vibrations et à la poussière.",
             "conventional": "Utiliser un traitement chimique puissant contre les champignons."
         }
     },
@@ -96,7 +103,10 @@ DISEASES_DB = {
         "recommendation": "C'est pas grave. Tu peux traiter rapidement.",
         "treatments": {
             "preventive": "Assurer bonne ventilation. Ne pas mettre trop d'engrais azotés.",
-            "biological": "Pulvériser du soufre (très simple, peu cher).",
+            "biological": "Pulvériser du soufre (très simple, peu cher). "
+                          "Désherbage mécanique à privilégier avant la floraison, en dehors des "
+                          "périodes humides : le sol travaillé sèche plus vite et limite l'humidité "
+                          "ambiante qui favorise le champignon.",
             "conventional": "Utiliser un traitement chimique spécial contre l'oïdium."
         }
     },
@@ -105,7 +115,10 @@ DISEASES_DB = {
         "recommendation": "Traite sans attendre. C'est une maladie qui revient souvent.",
         "treatments": {
             "preventive": "Ne pas planter la même culture 3 années de suite. Enlever tous les débris au sol.",
-            "biological": "Utiliser des bactéries bénéfiques en spray.",
+            "biological": "Utiliser des bactéries bénéfiques en spray. "
+                          "Désherbage mécanique possible du stade 2-3 feuilles jusqu'à la fin du "
+                          "tallage (avant épi 1 cm), comme pour la rouille : passer plus tard risque "
+                          "de casser les tiges montées.",
             "conventional": "Pulvériser un fongicide (produit contre les champignons)."
         }
     },
@@ -114,7 +127,10 @@ DISEASES_DB = {
         "recommendation": "Parfait ! Pas de maladie. Continue à surveiller régulièrement.",
         "treatments": {
             "preventive": "Vérifier régulièrement tes feuilles. Garder un bon désherbage.",
-            "biological": "Rien de nécessaire. Juste un entretien normal.",
+            "biological": "Rien de nécessaire, juste un entretien normal. "
+                          "Désherbage mécanique possible à tout stade avant la floraison ; "
+                          "répéter tous les 10 à 15 jours entre la levée et la fermeture du couvert "
+                          "reste la meilleure fenêtre.",
             "conventional": "Rien de nécessaire pour le moment."
         }
     }
@@ -130,19 +146,30 @@ class RealDiseaseClassifier:
         print("✅ Classifieur d'analyse d'image initialisé")
 
     def analyze_image(self, image_array: np.ndarray) -> tuple:
-        if len(image_array.shape) == 2:
+        # L'image arrive déjà en RGB (conversion faite avant l'appel), mais on
+        # reste défensif : n'importe quelle photo doit produire un résultat,
+        # jamais une exception.
+        if image_array.ndim == 2:
             image_array = np.stack([image_array] * 3, axis=-1)
-        if image_array.shape[2] == 4:
+        if image_array.ndim == 3 and image_array.shape[2] == 4:
             image_array = image_array[:, :, :3]
+        if image_array.ndim != 3 or image_array.shape[2] < 3:
+            # Image inexploitable (ex: 1 pixel, canal unique) : diagnostic par défaut
+            return "Feuille saine", 0.60
 
-        img_small = image_array[::10, ::10, :]
-        red = np.mean(img_small[:, :, 0])
-        green = np.mean(img_small[:, :, 1])
-        blue = np.mean(img_small[:, :, 2])
+        # Pas de sous-échantillonnage agressif sur les très petites images
+        step = 10 if min(image_array.shape[0], image_array.shape[1]) >= 20 else 1
+        img_small = image_array[::step, ::step, :3]
+        if img_small.size == 0:
+            img_small = image_array[:, :, :3]
 
-        saturation = np.max([red, green, blue]) - np.min([red, green, blue])
-        brightness = np.mean(image_array)
-        contrast = np.std(image_array)
+        red = float(np.mean(img_small[:, :, 0]))
+        green = float(np.mean(img_small[:, :, 1]))
+        blue = float(np.mean(img_small[:, :, 2]))
+
+        saturation = float(np.max([red, green, blue]) - np.min([red, green, blue]))
+        brightness = float(np.mean(image_array))
+        contrast = float(np.std(image_array))
 
         disease, confidence = self._classify_by_features(red, green, blue, saturation, contrast, brightness)
         return disease, confidence
@@ -203,12 +230,34 @@ async def diagnose(
 ):
     try:
         contents = await file.read()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Impossible de lire le fichier envoyé. Réessayez avec une autre photo."
+        )
+
+    if not contents:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Aucune photo reçue. Sélectionnez une image avant d'envoyer."
+        )
+
+    try:
+        # Pillow décode nativement JPEG, PNG, GIF, BMP, WEBP, TIFF... ; convert("RGB")
+        # gère aussi les images en palette, en niveaux de gris ou en CMJN sans distinction
+        # de format préalable, pour qu'aucune photo courante ne fasse échouer le diagnostic.
         image = Image.open(BytesIO(contents))
-
-        if image.format not in ['JPEG', 'PNG', 'GIF', 'BMP']:
-            raise ValueError("Format image invalide")
-
+        image = image.convert("RGB")
         image_array = np.array(image)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ce fichier n'est pas une image lisible (formats acceptés : JPEG, PNG, "
+                   "GIF, BMP, WEBP). Réessayez avec une photo au format JPEG ou PNG."
+        )
+
+    start_time = time.perf_counter()
+    try:
         disease_name, confidence = classifier.analyze_image(image_array)
         disease_info = classifier.diseases_db[disease_name]
 
@@ -241,14 +290,15 @@ async def diagnose(
             "treatments": disease_info["treatments"],
             "recommendation": disease_info["recommendation"],
             "timestamp": datetime.utcnow().isoformat(),
-            "processing_time_ms": 850
+            "processing_time_ms": round((time.perf_counter() - start_time) * 1000)
         }
 
     except Exception as e:
+        db.rollback()
         print(f"❌ Erreur: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Erreur: {str(e)}"
+            detail="Le diagnostic n'a pas pu être enregistré. Réessayez dans un instant."
         )
 
 @app.get("/api/v1/history/{user_id}")
