@@ -1050,7 +1050,6 @@
         let selectedParcel = null;
         let allParcels = [];
         let latestSensors = {};
-        let allDiagnostics = [];
         let editingParcelId = null;
 
         let currentWeatherLat = 48.3606;
@@ -1100,8 +1099,6 @@
         async function loadData() {
             loadFavoriteCities();
             await initGeolocation();
-            const savedDiag = localStorage.getItem('diagnostics');
-            if (savedDiag) allDiagnostics = JSON.parse(savedDiag);
             await loadParcels();
         }
 
@@ -1317,7 +1314,8 @@
 
                 const data = await response.json();
                 if (isParcell && selectedParcel) {
-                    saveDiagnostic(data);
+                    // L'API a déjà écrit le diagnostic en base : on rafraîchit l'affichage
+                    await loadParcels();
                 }
                 displayResult(data, isParcell);
                 showSuccess('Diagnostic sauvegardé', isParcell ? 'successMsg2' : 'successMsg');
@@ -1328,11 +1326,6 @@
             } finally {
                 document.getElementById(loadingId).classList.remove('show');
             }
-        }
-
-        // Le diagnostic est déjà écrit en base par l'API : on rafraîchit seulement l'affichage
-        async function saveDiagnostic(data) {
-            await loadParcels();
         }
 
         function displayResult(data, isParcell) {
@@ -1428,7 +1421,6 @@
                 const response = await fetch(`${API_URL}/api/v1/history/${USER_ID}`, { method: 'DELETE' });
                 if (!response.ok) throw new Error('Suppression refusée');
 
-                allDiagnostics = [];
                 displayHistory();
                 await loadParcels();
                 showSuccess('Historique supprimé', 'successMsg');

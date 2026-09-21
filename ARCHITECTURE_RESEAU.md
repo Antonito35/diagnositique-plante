@@ -3,13 +3,19 @@
 ## Schéma Global
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    UTILISATEURS                         │
-│         (Agriculteurs sur mobile/web)                   │
-└────────────────────────┬────────────────────────────────┘
-                         │ HTTP/HTTPS
-                         │
-        ┌────────────────▼────────────────┐
+┌──────────────────────────┐      ┌──────────────────────────┐
+│      UTILISATEURS        │      │   CAPTEURS IoT (parcelles)│
+│  (Agriculteurs mobile/web)│      │  SENS-001, SENS-002, ...  │
+│                          │      │  humidité sol, temp. sol, │
+│                          │      │  temp. air, hygrométrie,  │
+│                          │      │  humectation foliaire,    │
+│                          │      │  niveau de batterie       │
+└────────────┬─────────────┘      └────────────┬─────────────┘
+             │ HTTP/HTTPS                      │ HTTP (POST /sensors/readings)
+             │                                 │ 1 trame par minute
+             └───────────────┬─────────────────┘
+                             │
+        ┌────────────────────▼────────────┐
         │      INTERNET (Public)          │
         │                                 │
         │   IP: 13.51.48.254 (AWS)       │
@@ -36,11 +42,19 @@
         │  └──────────────────────────┘   │
         │                                 │
         │  ┌──────────────────────────┐   │
+        │  │  Simulateur IoT          │   │
+        │  │  (conteneur dédié)       │   │
+        │  │  émule les boîtiers      │   │
+        │  │  de terrain              │   │
+        │  └──────────────────────────┘   │
+        │                                 │
+        │  ┌──────────────────────────┐   │
         │  │  PostgreSQL 15          │   │
         │  │  Port: 5432             │   │
         │  │  - users                │   │
         │  │  - parcels              │   │
         │  │  - diagnostics          │   │
+        │  │  - sensor_readings      │   │
         │  └──────────────────────────┘   │
         │                                 │
         │  ┌──────────────────────────┐   │
@@ -87,9 +101,22 @@
 - **Météo API** : Open-Meteo (gratuit)
 - **Géolocalisation** : Nominatim OSM
 
+### **Couche terrain : capteurs IoT**
+- **Un boîtier par parcelle**, identifié par un code (`SENS-001`, `SENS-002`, …)
+- **Six grandeurs mesurées** : humidité et température du sol, température et
+  hygrométrie de l'air, humectation foliaire, niveau de batterie
+- **Transport** : HTTP, une trame JSON par minute vers `POST /api/v1/sensors/readings`
+- **Supervision** : `GET /api/v1/sensors/network` indique les capteurs en ligne
+  (aucune trame depuis plus de 15 minutes = hors ligne)
+- **Simulation** : un conteneur dédié émule les boîtiers avec un cycle jour/nuit
+  et des averses aléatoires. Remplacer le simulateur par de vrais capteurs ne
+  demande aucune modification de l'API.
+
 ---
 
 ## 📊 **Flux de Données**
+
+### Flux 1 — Diagnostic par image
 
 ```
 1. Utilisateur envoie photo
@@ -102,13 +129,32 @@
    ↓
 5. Sauvegarde → PostgreSQL
    ↓
-6. Récupère météo → Open-Meteo
+6. Réponse JSON → Frontend
    ↓
-7. Calcul risque maladie
+7. Affichage utilisateur
+```
+
+### Flux 2 — Surveillance permanente par les capteurs
+
+```
+1. Le capteur de la parcelle relève ses six grandeurs
    ↓
-8. Réponse JSON → Frontend
+2. Trame JSON → POST /api/v1/sensors/readings
    ↓
-9. Affichage utilisateur
+3. Validation Pydantic, écriture dans sensor_readings
+   ↓
+4. Croisement avec le dernier diagnostic IA et la météo
+   ↓
+5. Règles métier :
+     feuillage humide ≥ 70 % et air entre 15 et 25 °C → risque fongique
+     humidité du sol < 25 %  → stress hydrique
+     humidité du sol > 85 %  → excès d'eau
+     batterie < 20 %         → maintenance
+     silence > 15 min        → capteur hors ligne
+   ↓
+6. Alertes classées par gravité → GET /api/v1/alerts/{user_id}
+   ↓
+7. Affichage dans l'onglet Alertes
 ```
 
 ---
@@ -132,6 +178,7 @@
 Actuellement : 1 instance EC2 (t2.micro)
               + 1 BD PostgreSQL
               + 1 Cache Redis
+              + 1 simulateur de capteurs IoT
 
 Capable de supporter :
 - 100+ utilisateurs simultanés
