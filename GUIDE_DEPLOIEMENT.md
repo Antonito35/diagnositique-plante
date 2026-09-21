@@ -197,7 +197,9 @@ CREATE TABLE sensor_readings (
 
 | Métrique | Valeur mesurée |
 |----------|----------------|
-| Temps de réponse du diagnostic | ~1,5 s |
+| Temps de réponse du diagnostic (inférence TFLite) | ~30-50 ms |
+| Précision du modèle IA (jeu de test PlantVillage, 10 849 images) | 96,70 % |
+| Taille du modèle déployé | 4,9 Mo (TensorFlow Lite, quantifié float16) |
 | Fréquence des relevés capteurs | 1 par minute et par parcelle |
 | Instance de déploiement | AWS EC2 t2.micro (1 vCPU, 1 Go RAM) |
 

@@ -32,7 +32,7 @@
 ✅ **Pertinence Pédagogique**
 - Bachelor 2 étudie Python
 - Facile à apprendre et maintenir
-- Idéal pour IA (NumPy, OpenCV, scikit-learn)
+- Idéal pour IA (TensorFlow, NumPy, écosystème scikit-learn)
 - Déploiement simple
 
 ✅ **Compatibilité**
@@ -46,7 +46,7 @@
 @app.post("/api/v1/diagnose")
 async def diagnose(file: UploadFile, user_id: int):
     # 1. Reçoit photo
-    # 2. OpenCV analyse
+    # 2. Le modèle IA (TensorFlow Lite) analyse
     # 3. Retourne diagnostic JSON
     # 4. Sauvegarde BD
 ```
@@ -169,7 +169,7 @@ FastAPI ←→ PostgreSQL
 | **Déploiement cloud** | AWS EC2 gratuit 12 mois | ✅ Respecté |
 | **3 technologies imposées** | FastAPI, PostgreSQL, Docker | ✅ Respecté |
 | **Architecture réseau** | Schéma avec 4 tiers | ✅ Respecté |
-| **IA intégrée** | OpenCV + NumPy | ✅ Respecté |
+| **IA intégrée** | TensorFlow (transfer learning) | ✅ Respecté |
 | **Sécurité** | JWT + Bcrypt + CORS | ✅ Respecté |
 | **Performance** | ~1.5s/diagnostic | ✅ Respecté |
 
@@ -178,8 +178,8 @@ FastAPI ←→ PostgreSQL
 ## 🎯 **Décisions Stratégiques**
 
 ### Pourquoi PAS Node.js ?
-- ❌ IA plus difficile (Python domine)
-- ❌ Moins naturel pour OpenCV/NumPy
+- ❌ IA plus difficile (Python domine, TensorFlow est natif Python)
+- ❌ Écosystème IA de Node.js beaucoup plus restreint
 - ✅ Mais : autre choix valide si l'équipe a l'expertise
 
 ### Pourquoi PAS MongoDB ?
@@ -220,7 +220,7 @@ Phase 3 (Production à grande échelle) : Kubernetes
 | Backend/API | **FastAPI** | ✅ |
 | Base de Données | **PostgreSQL** | ✅ |
 | Infrastructure/Déploiement | **Docker + AWS** | ✅ |
-| IA/Données | **OpenCV + NumPy** | ✅ |
+| IA/Données | **TensorFlow (transfer learning MobileNetV2)** | ✅ |
 | Architecture Réseau | **Terrain IoT + 4 tiers** | ✅ |
 | Cloud Public | **AWS EC2** | ✅ |
 | Sécurité | **JWT + Bcrypt** | ✅ |

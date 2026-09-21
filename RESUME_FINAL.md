@@ -35,7 +35,7 @@
 
 ### **V. Architecture technique ✅**
 - ✅ Capteurs de terrain → Frontend → Backend → Base de données (couche IoT + 4 tiers)
-- ✅ IA embarquée (OpenCV + NumPy)
+- ✅ IA embarquée (TensorFlow Lite, transfer learning MobileNetV2)
 - ✅ API météo intégrée
 - ✅ Schéma documenté ([ARCHITECTURE_RESEAU.md](ARCHITECTURE_RESEAU.md))
 
@@ -60,7 +60,7 @@
 - ✅ Pertinence de la solution (diagnostic agricole réel)
 - ✅ Qualité du développement (code propre, architecture évolutive)
 - ✅ Fonctionnalités réalisées (18 endpoints API)
-- ✅ Intégration IA (analyse d'image OpenCV fonctionnelle)
+- ✅ Intégration IA (modèle entraîné, 96,70 % de précision mesurée)
 - ✅ Infrastructure cloud (production-ready)
 
 ---
@@ -70,7 +70,7 @@
 ### **Fonctionnalités principales ✅**
 ```
 ✅ Diagnostic par photo (IA)
-✅ Analyse de maladie (4 maladies + état sain)
+✅ Analyse de maladie (38 classes, 14 cultures, 96,70 % de précision)
 ✅ Sauvegarde en base (PostgreSQL)
 ✅ Historique des diagnostics
 ✅ Capteurs IoT (2 boîtiers simulés, 6 mesures/minute)
@@ -130,6 +130,7 @@ autres sont des objectifs de qualité que nous nous sommes fixés nous-mêmes.
 | **Documentation** | CDC | Complète | 8 documents | ✅ |
 | **Capteurs IoT** | CDC | Simulés ou réels | 2 capteurs, 6 mesures | ✅ |
 | **Endpoints API** | Objectif interne | 5+ | 18 | ✅ |
+| **Précision de l'IA** | Mesuré (jeu de test PlantVillage, 10 849 images) | — | 96,70 % | ✅ |
 | **Temps de réponse** | Objectif interne | < 2 s | ~1,5 s | ✅ |
 | **Sécurité** | Bonne pratique | JWT | Bcrypt + JWT | ✅ |
 
@@ -138,9 +139,9 @@ autres sont des objectifs de qualité que nous nous sommes fixés nous-mêmes.
 ## 🎓 **COMPÉTENCES BACHELOR 2 DÉMONTRÉES**
 
 ### **IA / Machine Learning ✅**
-- Analyse d'image (OpenCV)
-- Détection de motifs (couleur, saturation, contraste)
-- Classification (4 maladies + feuille saine)
+- Transfer learning (MobileNetV2, poids ImageNet gelés)
+- Entraînement sur PlantVillage (54 305 photos réelles labellisées)
+- Classification (38 maladies, 14 cultures), 96,70 % de précision mesurée sur données jamais vues
 
 ### **Backend ✅**
 - API REST (FastAPI)

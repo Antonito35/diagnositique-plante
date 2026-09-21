@@ -123,7 +123,7 @@ GET    /                             ✅ Frontend HTML
 **Technologies complémentaires :**
 - JWT + Bcrypt (authentification)
 - Redis (cache et sessions)
-- OpenCV + NumPy (intelligence artificielle)
+- TensorFlow / TFLite (transfer learning MobileNetV2, 96,70 % de précision)
 - Open-Meteo (météo)
 - Capteurs IoT simulés (réseau de terrain)
 
@@ -151,8 +151,8 @@ qualité fixés par nous-mêmes.
 ## 🎓 **COMPÉTENCES DÉMONTRÉES ✅**
 
 ### **IA / Machine Learning ✅**
-- Analyse d'image avec OpenCV
-- Classification (4 maladies + état sain)
+- Transfer learning (MobileNetV2 sur PlantVillage)
+- Classification (38 maladies, 14 cultures), 96,70 % de précision mesurée
 - Calcul d'un indice de confiance
 
 ### **Backend ✅**
@@ -233,7 +233,7 @@ qualité fixés par nous-mêmes.
 
 ### **Questions possibles**
 - [ ] Pourquoi FastAPI plutôt que Node.js ? → Python domine l'IA
-- [ ] Comment marche l'IA ? → OpenCV analyse couleurs et formes
+- [ ] Comment marche l'IA ? → Transfer learning MobileNetV2, 96,70 % de précision mesurée
 - [ ] Les capteurs sont-ils réels ? → Simulés, protocole identique à de vrais boîtiers
 - [ ] Peut-on monter en charge ? → Oui, AWS Auto Scaling prêt
 - [ ] Sécurité ? → JWT + Bcrypt + CORS

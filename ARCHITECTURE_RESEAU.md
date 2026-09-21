@@ -36,8 +36,8 @@
         │  │ └──────────────────────┘ │   │
         │  │         ↓                │   │
         │  │  ┌──────────────────┐    │   │
-        │  │  │  OpenCV + NumPy  │    │   │
-        │  │  │  (IA Classifier) │    │   │
+        │  │  │  MobileNetV2 (TFLite) │ │   │
+        │  │  │  (Modèle IA entraîné) │ │   │
         │  │  └──────────────────┘    │   │
         │  └──────────────────────────┘   │
         │                                 │
@@ -97,7 +97,7 @@
 - **Cache** : Redis 7 (sessions, cache)
 
 ### **Tier 4 : IA & Services**
-- **Vision IA** : OpenCV + NumPy
+- **Modèle IA** : MobileNetV2 (transfer learning), exporté en TensorFlow Lite, 96,70 % de précision mesurée sur 38 classes / 14 cultures
 - **Météo API** : Open-Meteo (gratuit)
 - **Géolocalisation** : Nominatim OSM
 
@@ -123,7 +123,7 @@
    ↓
 2. Upload → FastAPI (8000)
    ↓
-3. OpenCV analyse l'image
+3. Le modèle IA (TFLite) analyse l'image
    ↓
 4. Diagnostic généré avec indice de confiance
    ↓

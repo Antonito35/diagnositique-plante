@@ -58,10 +58,10 @@
     ┌────────────┼────────────┐
     │            │            │
     ▼            ▼            ▼
- ┌──────┐  ┌─────────┐  ┌──────────┐
- │ Base │  │   IA    │  │ Météo    │
- │ de   │  │ OpenCV  │  │ Open-Meteo
- │ Données│ └─────────┘  └──────────┘
+ ┌──────┐  ┌─────────────┐  ┌──────────┐
+ │ Base │  │  IA (TFLite) │  │ Météo    │
+ │ de   │  │ MobileNetV2  │  │ Open-Meteo
+ │ Données│ └─────────────┘  └──────────┘
  └──────┘
 ```
 
@@ -69,7 +69,7 @@
 - ✅ **Frontend** : Interface web (HTML/CSS/JS)
 - ✅ **Backend** : API FastAPI (Python)
 - ✅ **Base de données** : PostgreSQL
-- ✅ **IA** : Analyse d'image OpenCV
+- ✅ **IA** : Modèle entraîné (transfer learning MobileNetV2), 96,70 % de précision mesurée
 - ✅ **Météo** : Intégration Open-Meteo
 - ✅ **Infrastructure** : Docker + AWS EC2
 
@@ -84,9 +84,9 @@
 **Ne pas rentrer dans les détails techniques !**
 
 **À dire :**
-- "L'IA analyse les caractéristiques visuelles de la plante"
-- "Elle reconnaît 4 maladies et l'état sain"
-- "Chaque diagnostic est accompagné d'un indice de confiance"
+- "L'IA est un vrai modèle entraîné par transfer learning (MobileNetV2)"
+- "Elle reconnaît 38 maladies sur 14 cultures différentes"
+- "96,70 % de précision mesurée sur 10 849 photos jamais vues à l'entraînement"
 - "La météo améliore la prédiction"
 - "Exemple : Si humidité > 80% + température 15-25°C → Risque mildiou élevé"
 
@@ -134,7 +134,7 @@
 |------------|-----------|
 | **FastAPI** | Léger, rapide, parfait pour IA |
 | **PostgreSQL** | Fiable, scalable, standard industrie |
-| **OpenCV** | Leader en vision par ordinateur |
+| **TensorFlow** | Standard du transfer learning, listé par le CDC |
 | **Docker** | Déploiement simple & reproductible |
 | **AWS** | Infrastructure cloud leader |
 
@@ -177,7 +177,7 @@
 **Soyez prêt pour les questions :**
 
 **Q : Comment l'IA reconnaît les maladies ?**
-R : "L'IA analyse la couleur, la saturation, le contraste et la texture de la photo avec OpenCV, et compare ces caractéristiques aux signatures connues de chaque maladie. Ce n'est pas un modèle entraîné sur une base d'images : c'est de la vision par ordinateur classique, plus simple et plus rapide à faire tourner."
+R : "C'est du transfer learning : on part de MobileNetV2, un réseau de neurones déjà entraîné sur ImageNet, et on entraîne une tête de classification par-dessus sur PlantVillage, 54 305 photos réelles de 38 maladies. Le modèle atteint 96,70 % de précision sur des photos jamais vues à l'entraînement."
 
 **Q : Ça marche sans connexion ?**
 R : "Non, l'app a besoin d'une connexion internet pour la météo et la base de données. Mais c'est normal pour une app agricole."

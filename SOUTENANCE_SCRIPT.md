@@ -64,9 +64,9 @@ Tout est persistant en base de données - rien ne dépend du navigateur."
 **À dire :**
 "Parlons de l'architecture technique. Elle part du terrain : chaque parcelle porte un capteur qui envoie ses mesures à l'API.
 
-Viennent ensuite quatre tiers. TIER 1, la présentation : le frontend HTML/CSS/JavaScript responsive. TIER 2, le métier : l'API REST FastAPI qui gère toute la logique. TIER 3, les données : PostgreSQL pour le stockage persistant, Redis pour le cache. TIER 4, les services externes : OpenCV pour l'analyse d'image et Open-Meteo pour la météo.
+Viennent ensuite quatre tiers. TIER 1, la présentation : le frontend HTML/CSS/JavaScript responsive. TIER 2, le métier : l'API REST FastAPI qui gère toute la logique. TIER 3, les données : PostgreSQL pour le stockage persistant, Redis pour le cache. TIER 4, les services externes : notre modèle d'intelligence artificielle pour l'analyse d'image et Open-Meteo pour la météo.
 
-Le flux d'un diagnostic est simple : la photo part du frontend vers l'API, elle est traitée par OpenCV, sauvegardée en base, et le résultat revient en JSON."
+Le flux d'un diagnostic est simple : la photo part du frontend vers l'API, elle est analysée par le modèle IA, sauvegardée en base, et le résultat revient en JSON."
 
 ---
 
@@ -110,11 +110,13 @@ Tout est testable en direct via Swagger, à l'adresse slash docs."
 ## SLIDE 10 - INTELLIGENCE ARTIFICIELLE (1 min 05)
 
 **À dire :**
-"Nous utilisons OpenCV et NumPy, les outils standards de la vision par ordinateur en Python.
+"C'est un vrai modèle entraîné, pas une simple analyse de couleurs. On part de MobileNetV2, un réseau de neurones convolutif pré-entraîné sur ImageNet, dont on garde les poids gelés, et on entraîne juste une petite tête de classification par-dessus - c'est ce qu'on appelle le transfer learning.
 
-On reçoit la photo, OpenCV analyse la couleur, la saturation, le contraste et la texture, on compare ces caractéristiques aux signatures des maladies connues, et on retourne la plus probable avec un indice de confiance.
+L'entraînement s'est fait sur PlantVillage : 54 305 photos réelles de feuilles, labellisées, couvrant 38 maladies sur 14 cultures différentes - pommier, maïs, vigne, tomate, pomme de terre, poivron, et d'autres.
 
-Réponse en 1,5 seconde, ce qui rend l'outil utilisable directement dans le champ."
+Le résultat est mesuré, pas estimé : sur les 10 849 photos du jeu de test, jamais vues pendant l'entraînement, le modèle atteint 96,70 % de précision.
+
+Le modèle est exporté en TensorFlow Lite, cinq megaoctets à peine, ce qui permet une réponse en 30 à 50 millisecondes, même sur notre petite instance AWS."
 
 ---
 
@@ -182,16 +184,19 @@ R : "En remplaçant le conteneur par des boîtiers physiques qui envoient la mê
 R : "Parce que c'est le facteur déclenchant des maladies fongiques. Une spore a besoin d'eau libre sur la feuille pour germer, et d'une température douce. L'humidité de l'air ne suffit pas à le dire."
 
 **Q : "Pourquoi FastAPI plutôt que Node.js ?"**
-R : "Parce que toute la chaîne d'intelligence artificielle est en Python : OpenCV, NumPy. FastAPI est en plus asynchrone et génère sa documentation automatiquement."
+R : "Parce que toute la chaîne d'intelligence artificielle est en Python : TensorFlow, NumPy. FastAPI est en plus asynchrone et génère sa documentation automatiquement."
 
 **Q : "Comment fonctionne exactement l'IA ?"**
-R : "C'est de la vision par ordinateur classique, pas du deep learning. OpenCV extrait des caractéristiques de l'image - couleur, saturation, contraste, texture - et je les compare aux signatures des maladies connues."
+R : "C'est du transfer learning : on part de MobileNetV2, un réseau de neurones convolutif déjà entraîné sur ImageNet, on garde ses poids gelés, et on entraîne juste une tête de classification par-dessus sur nos 38 catégories. Ça évite d'avoir besoin de millions d'images et de jours d'entraînement, tout en gardant la puissance d'un vrai réseau de neurones."
 
 **Q : "Est-ce que le diagnostic est toujours fiable ?"**
-R : "Non, et c'est important de le dire : c'est une analyse heuristique sur des critères visuels simples, pas un modèle entraîné et validé sur un jeu de données étiqueté. Elle donne une première indication utile, pas un diagnostic médical certifié. Un réseau de neurones convolutif entraîné sur des photos annotées irait plus loin, c'est une évolution possible du projet."
+R : "C'est un vrai modèle entraîné et validé - 96,70 % de précision sur 10 849 photos jamais vues à l'entraînement, ce n'est pas un chiffre en l'air. Mais ce n'est pas un diagnostic phytosanitaire certifié : sur une photo ambiguë ou une maladie hors des 38 catégories apprises, il peut se tromper. L'indice de confiance aide à repérer ces cas incertains."
 
-**Q : "Comment sauriez-vous si le diagnostic se trompe ?"**
-R : "Aujourd'hui, il n'y a pas de validation automatique : c'est à l'agriculteur de confirmer avec son expérience ou un technicien si le doute persiste. C'est justement pourquoi on affiche un indice de confiance plutôt qu'une réponse binaire, et pourquoi on ne prétend pas à un taux de précision qu'on n'a jamais mesuré sur un vrai jeu de test."
+**Q : "Comment avez-vous validé les 96,70 % ? Ce n'est pas juste un chiffre inventé ?"**
+R : "Nous avons séparé les données avant tout entraînement : 43 456 photos pour entraîner le modèle, 10 849 autres mises de côté et jamais montrées pendant l'entraînement. Le 96,70 % est calculé uniquement sur ces images inédites. Je peux montrer le résultat en direct sur Swagger si vous voulez tester avec une autre photo."
+
+**Q : "Le blé et le colza sont dans les 38 maladies ?"**
+R : "Non, et c'est une limite assumée. PlantVillage, le jeu de données que nous avons utilisé, ne couvre pas les céréales ni le colza - seulement 14 cultures, surtout des arbres fruitiers et des légumes. Nous avons cherché des données spécifiques au blé, mais les sources trouvées demandaient soit un compte Kaggle avec justificatif, soit un formulaire d'accès avec délai. Étendre à d'autres cultures est une évolution possible, avec le bon jeu de données."
 
 **Q : "Pourquoi PostgreSQL plutôt que MongoDB ?"**
 R : "Parce que le modèle est relationnel : utilisateur, parcelle, diagnostic, relevé de capteur. PostgreSQL garantit les transactions ACID."

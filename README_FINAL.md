@@ -79,8 +79,8 @@ Capteurs IoT (parcelles)          Utilisateurs (mobile / web)
                         │
         ┌───────────────┼───────────────┐
         ▼               ▼               ▼
-   PostgreSQL         Redis        OpenCV + Open-Meteo
-  (données)          (cache)         (IA + météo)
+   PostgreSQL         Redis      Modèle IA (TFLite) + Open-Meteo
+  (données)          (cache)          (diagnostic + météo)
 ```
 
 Détail complet du schéma réseau : [ARCHITECTURE_RESEAU.md](ARCHITECTURE_RESEAU.md)
@@ -94,7 +94,7 @@ Détail complet du schéma réseau : [ARCHITECTURE_RESEAU.md](ARCHITECTURE_RESEA
 | **Frontend** | HTML5, CSS3, JavaScript |
 | **Backend** | Python 3.11, FastAPI |
 | **Base de données** | PostgreSQL 15, Redis 7 |
-| **Intelligence artificielle** | OpenCV, NumPy |
+| **Intelligence artificielle** | TensorFlow (transfer learning MobileNetV2), TensorFlow Lite |
 | **Météo** | API Open-Meteo |
 | **Capteurs IoT** | Service Python dédié, protocole HTTP |
 | **Infrastructure** | Docker, Docker Compose, AWS EC2 |
@@ -143,11 +143,18 @@ curl -X POST "http://localhost:8000/api/v1/diagnose" \
 
 ## Maladies détectées
 
-- **Rouille du blé** — analyse de la teinte rouge-orangée
-- **Mildiou du raisin** — détection du duvet blanc grisâtre
-- **Oïdium** — identification du poudrage blanc
-- **Septoriose** — reconnaissance des taches brunes
-- **Feuille saine** — validation de l'absence de symptôme
+Modèle entraîné par transfer learning (MobileNetV2, poids ImageNet gelés)
+sur PlantVillage : 54 305 photos réelles labellisées, **38 classes** couvrant
+**14 cultures** (pommier, myrtillier, cerisier, maïs, vigne, agrumes, pêcher,
+poivron, pomme de terre, framboisier, soja, courge, fraisier, tomate).
+Précision mesurée sur le jeu de test PlantVillage (10 849 images jamais vues
+à l'entraînement, séparées avant tout entraînement) : **96,70 %**.
+
+Liste complète des 38 classes : [backend/diseases_data.py](backend/diseases_data.py)
+
+⚠️ Le blé et le colza ne font pas partie de PlantVillage : aucune source de
+données fiable et librement accessible n'a été trouvée pour ces cultures
+dans le temps imparti. C'est une limite connue, pas un oubli.
 
 ---
 
@@ -197,7 +204,7 @@ Procédure complète : [GUIDE_DEPLOIEMENT.md](GUIDE_DEPLOIEMENT.md)
 
 Ce projet couvre les cinq domaines techniques du Bachelor 2 :
 
-- **Intelligence artificielle** : classification d'images (OpenCV)
+- **Intelligence artificielle** : transfer learning (TensorFlow/MobileNetV2), 96,70 % de précision mesurée
 - **Backend** : API REST asynchrone (FastAPI)
 - **Frontend** : interface web responsive
 - **Base de données** : modèle relationnel, ORM, migrations
