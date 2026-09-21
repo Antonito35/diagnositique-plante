@@ -37,7 +37,7 @@ except ImportError:
 
 try:
     # Runtime leger, deploye en production (quelques Mo, pas de TensorFlow complet)
-    from tflite_runtime.interpreter import Interpreter
+    from ai_edge_litert.interpreter import Interpreter
 except ImportError:
     # Environnement de developpement local ou tensorflow complet est deja present
     from tensorflow.lite.python.interpreter import Interpreter
