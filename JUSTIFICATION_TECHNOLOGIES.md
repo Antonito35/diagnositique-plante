@@ -113,7 +113,7 @@ users (id, email, hashed_password, ...)
 ✅ **Pertinence Technique**
 - Containerisation (reproducibilité)
 - Infrastructure versionnée (docker-compose.yml)
-- Deployment one-command
+- Déploiement en une seule commande
 - Isolé par service (API, BD, Redis)
 
 ✅ **Pertinence Pédagogique**
@@ -150,7 +150,7 @@ FastAPI ←→ PostgreSQL
    ↓           ↓
    └─→ Docker → AWS EC2
         ↓
-      Live! 🚀
+      En ligne ! 🚀
 ```
 
 | Interface | Type | Protocole |
@@ -175,22 +175,22 @@ FastAPI ←→ PostgreSQL
 
 ---
 
-## 🎯 **Decisions Stratégiques**
+## 🎯 **Décisions Stratégiques**
 
 ### Pourquoi PAS Node.js ?
 - ❌ IA plus difficile (Python domine)
 - ❌ Moins naturel pour OpenCV/NumPy
-- ✅ Mais : Autre choix valide si expertise existe
+- ✅ Mais : autre choix valide si l'équipe a l'expertise
 
 ### Pourquoi PAS MongoDB ?
 - ❌ Schéma relationnel nécessaire (users → parcels → diagnostics)
-- ❌ ACID transactions plus sûres pour agriculture
-- ✅ Mais : Flexible pour données météo
+- ❌ Transactions ACID plus sûres pour l'agriculture
+- ✅ Mais : flexible pour des données météo peu structurées
 
 ### Pourquoi PAS Kubernetes ?
-- ❌ Overkill pour MVP (1 utilisateur → 100 utilisateurs)
-- ❌ Trop complexe pour Bachelor 2
-- ✅ Docker suffit, scalable à Kubernetes plus tard
+- ❌ Disproportionné pour un MVP (1 utilisateur → 100 utilisateurs)
+- ❌ Trop complexe pour le niveau Bachelor 2
+- ✅ Docker suffit aujourd'hui, migration vers Kubernetes possible plus tard
 
 ---
 
@@ -198,17 +198,17 @@ FastAPI ←→ PostgreSQL
 
 ```
 Phase 1 (Actuel) : 1 instance EC2
-└─ Capable : 100 users, 1000 diag/jour
+└─ Capacité visée : 100 utilisateurs, 1 000 diagnostics/jour
 
-Phase 2 (Futur) : Auto Scaling
-├─ EC2 instances multiples
-├─ Load Balancer (ELB)
-└─ Capable : 1000 users, 10k diag/jour
+Phase 2 (Futur) : Auto-scaling
+├─ Plusieurs instances EC2
+├─ Répartiteur de charge (ELB)
+└─ Capacité visée : 1 000 utilisateurs, 10 000 diagnostics/jour
 
-Phase 3 (Production) : Kubernetes
-├─ Micro-services
-├─ Auto-scaling pods
-└─ Capable : 10k+ users, 100k+ diag/jour
+Phase 3 (Production à grande échelle) : Kubernetes
+├─ Architecture en micro-services
+├─ Pods à mise à l'échelle automatique
+└─ Capacité visée : 10 000+ utilisateurs, 100 000+ diagnostics/jour
 ```
 
 ---
@@ -221,13 +221,13 @@ Phase 3 (Production) : Kubernetes
 | Base de Données | **PostgreSQL** | ✅ |
 | Infrastructure/Déploiement | **Docker + AWS** | ✅ |
 | IA/Données | **OpenCV + NumPy** | ✅ |
-| Architecture Réseau | **Diagramme 4 tiers** | ✅ |
+| Architecture Réseau | **Terrain IoT + 4 tiers** | ✅ |
 | Cloud Public | **AWS EC2** | ✅ |
 | Sécurité | **JWT + Bcrypt** | ✅ |
-| Performance | **< 2s/req** | ✅ |
+| Performance | **~1,5 s / requête** | ✅ |
 
 ---
 
-**Version** : 2.0  
-**Date** : 2026-09-19  
-**Approuvé** : CDC Conforme ✅
+**Version** : 2.1  
+**Date** : 2026-09-21  
+**Approuvé** : Conforme au CDC ✅

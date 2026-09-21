@@ -1,249 +1,218 @@
-# 🌿 PlantDiag - Diagnostic Agricole par IA
+# PlantDiag - Diagnostic Agricole par Intelligence Artificielle
 
-**Solution intelligente de diagnostic de maladies agricoles via photo et IA**
+**Solution de diagnostic des maladies des cultures à partir d'une photo, avec surveillance continue par capteurs de parcelle.**
 
-[![Status](https://img.shields.io/badge/status-Production%20Ready-brightgreen)]()
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)]()
+[![Statut](https://img.shields.io/badge/statut-production-brightgreen)]()
+[![Python](https://img.shields.io/badge/Python-3.11-blue)]()
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-blue)]()
-[![License](https://img.shields.io/badge/License-MIT-green)]()
+[![Licence](https://img.shields.io/badge/licence-MIT-green)]()
 
 ---
 
-## 🎯 Le Problème
+## Le problème
 
-Les agriculteurs perdent **plusieurs jours** pour diagnostiquer les maladies de leurs cultures. PlantDiag résout ce problème en offrant un diagnostic **en moins de 2 secondes** via une simple photo.
+Les agriculteurs mettent souvent plusieurs jours à identifier une maladie sur leurs cultures, faute d'outil accessible. PlantDiag répond à ce besoin avec un diagnostic en moins de deux secondes à partir d'une simple photo.
 
-## ✨ La Solution
+## La solution
 
-📱 **Application web/mobile** qui utilise l'IA pour :
-- Analyser les photos de plantes
-- Diagnostiquer les maladies en temps réel
-- Fournir des recommandations de traitement
-- Afficher la météo et les risques
+Une application web responsive qui combine intelligence artificielle et capteurs de terrain pour :
+- Analyser une photo de plante et identifier la maladie
+- Surveiller en continu l'humidité du sol, la température et l'humectation du feuillage
+- Croiser ces relevés avec la météo locale pour générer des alertes régionales
+- Conserver l'historique des diagnostics par parcelle
 
 ---
 
-## 🚀 Démarrage Rapide
+## Démarrage rapide
 
-### **1. Installation (2 minutes)**
+### 1. Installation
 
 ```bash
-# Clone le projet
-cd "d:\document\B2\projet Antoine SIMON\backend"
-
-# Installe les dépendances
+cd backend
 pip install -r requirements.txt
-
-# Lance l'API
-python -m uvicorn app_minimal:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### **2. Accède à l'application**
+### 2. Lancer l'application (avec Docker, recommandé)
 
-- **PC** : http://localhost:8000
-- **Téléphone** : Scannez le QR code ou allez à `http://[IP_LOCAL]:8000`
+```bash
+docker compose up --build
+```
 
-### **3. Commence à diagnostiquer**
+Cette commande démarre quatre conteneurs : l'API, PostgreSQL, Redis et le simulateur de capteurs IoT.
 
-1. Crée une parcelle (nom + type culture)
-2. Prends une photo de la plante
-3. Reçois le diagnostic avec recommandations
+### 3. Accéder à l'application
+
+- **Interface web** : http://localhost:8000
+- **Documentation API interactive** : http://localhost:8000/docs
+
+### 4. Utilisation
+
+1. Créer une parcelle (nom et type de culture)
+2. Prendre ou importer une photo de la plante
+3. Consulter le diagnostic, les traitements recommandés et les alertes de la parcelle
 
 ---
 
-## 📊 Fonctionnalités
+## Fonctionnalités
 
 | Fonction | Détail |
 |----------|--------|
-| **📷 Diagnostic Photo** | Upload image → IA analyse → Résultat instant |
-| **🌾 Gestion Parcelles** | Créer, éditer, supprimer parcelles |
-| **📱 Mobile Ready** | Interface responsive + code QR |
-| **🌤️ Météo Temps Réel** | Données actuelles + prévision 5 jours |
-| **⚠️ Alertes IA** | Calcule risque maladie selon météo |
-| **📋 Historique** | Sauvegarde diagnostics en base de données |
-| **🔍 API REST** | 8 endpoints complets + Swagger |
+| **Diagnostic par photo** | Upload d'image → analyse IA → résultat en moins de 2 secondes |
+| **Capteurs IoT** | Un boîtier par parcelle, six mesures relevées chaque minute |
+| **Gestion des parcelles** | Créer, modifier, supprimer, tout persiste en base de données |
+| **Alertes croisées** | Combine capteurs, diagnostics IA et météo, classées par gravité |
+| **Météo en temps réel** | Conditions actuelles et prévisions à cinq jours |
+| **Historique complet** | Tous les diagnostics conservés avec leur indice de confiance |
+| **Authentification** | Comptes utilisateurs sécurisés par jeton JWT |
+| **API REST** | 18 endpoints documentés via Swagger |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-Frontend (HTML/CSS/JS)
-         ↓
-    API FastAPI (Python)
-         ↓
-    SQLite Database
-         ↓
-    OpenCV IA + Open-Meteo
+Capteurs IoT (parcelles)          Utilisateurs (mobile / web)
+        │                                   │
+        └──────────────┬────────────────────┘
+                        ▼
+              API FastAPI (Python)
+                        │
+        ┌───────────────┼───────────────┐
+        ▼               ▼               ▼
+   PostgreSQL         Redis        OpenCV + Open-Meteo
+  (données)          (cache)         (IA + météo)
 ```
 
-**Infrastructure Ready :**
-- Docker
-- AWS / Azure / WMware
+Détail complet du schéma réseau : [ARCHITECTURE_RESEAU.md](ARCHITECTURE_RESEAU.md)
 
 ---
 
-## 📦 Stack Technique
+## Stack technique
 
-| Layer | Technology |
-|-------|-----------|
+| Couche | Technologie |
+|--------|-------------|
 | **Frontend** | HTML5, CSS3, JavaScript |
-| **Backend** | Python 3.9+, FastAPI |
-| **Database** | SQLite (local), PostgreSQL (prod) |
-| **IA** | OpenCV, NumPy |
-| **Météo** | Open-Meteo API |
-| **Deployment** | Docker, Docker Compose |
+| **Backend** | Python 3.11, FastAPI |
+| **Base de données** | PostgreSQL 15, Redis 7 |
+| **Intelligence artificielle** | OpenCV, NumPy |
+| **Météo** | API Open-Meteo |
+| **Capteurs IoT** | Service Python dédié, protocole HTTP |
+| **Infrastructure** | Docker, Docker Compose, AWS EC2 |
+
+Justification détaillée des choix technologiques : [JUSTIFICATION_TECHNOLOGIES.md](JUSTIFICATION_TECHNOLOGIES.md)
 
 ---
 
-## 📋 API Endpoints
+## Principaux endpoints de l'API
 
 ```bash
+# Authentification
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+
 # Diagnostic
 POST /api/v1/diagnose
-  Body: file (image), user_id, parcel_id
-  Response: disease, confidence, treatments
+  Corps : file (image), paramètres user_id, parcel_id
+  Réponse : maladie, indice de confiance, traitements recommandés
 
 # Parcelles
-GET /api/v1/parcels
-POST /api/v1/parcels
+GET    /api/v1/parcels
+POST   /api/v1/parcels
+PUT    /api/v1/parcels/{id}
+DELETE /api/v1/parcels/{id}
 
-# Météo
+# Capteurs IoT
+POST /api/v1/sensors/readings
+GET  /api/v1/sensors/latest
+GET  /api/v1/sensors/network
+
+# Alertes et météo
+GET /api/v1/alerts/{user_id}
 GET /api/v1/weather?latitude=X&longitude=Y
-
-# Status
-GET /health
-GET /api/v1/status
-
-# Swagger UI
-GET /docs
 ```
 
-**Tester avec curl :**
+Liste complète et testable : http://localhost:8000/docs
+
+**Exemple avec curl :**
 ```bash
 curl -X POST "http://localhost:8000/api/v1/diagnose" \
-  -F "file=@photo.jpg" \
-  -F "user_id=1"
+  -F "file=@photo.jpg"
 ```
 
 ---
 
-## 🎓 Pédagogie
+## Maladies détectées
 
-Ce projet couvre **tout le stack** du Bachelor 2 :
-
-- ✅ **IA** : Classification d'images
-- ✅ **Backend** : API REST asynchrone
-- ✅ **Frontend** : Interface responsive
-- ✅ **Database** : ORM + migrations
-- ✅ **DevOps** : Docker + Cloud
-- ✅ **Architecture** : Conception scalable
+- **Rouille du blé** — analyse de la teinte rouge-orangée
+- **Mildiou du raisin** — détection du duvet blanc grisâtre
+- **Oïdium** — identification du poudrage blanc
+- **Septoriose** — reconnaissance des taches brunes
+- **Feuille saine** — validation de l'absence de symptôme
 
 ---
 
-## 📈 Performance
+## Sécurité
 
-| Métrique | Valeur |
-|----------|--------|
-| Temps API | ~1.5s |
-| Accuracy | 87% |
-| Mémoire | 95MB |
-| Diagnostics/sec | 100+ |
-| Uptime | 99.9% |
+- Authentification par jeton JWT (validité 30 jours)
+- Mots de passe hachés avec Bcrypt et sel
+- Validation systématique des données entrantes (Pydantic)
+- CORS configuré
+- Isolation des données par utilisateur
 
 ---
 
-## 🔒 Sécurité
+## Déploiement
 
-```
-✅ Validation images (< 10MB)
-✅ Sanitization input
-✅ Logs sécurisés
-✅ CORS configuré
-✅ Base de données persistante
-✅ Pas de données sensibles
-```
-
----
-
-## 📚 Documentation
-
-| Doc | Chemin |
-|-----|--------|
-| **API Swagger** | http://localhost:8000/docs |
-| **Architecture** | [ARCHITECTURE.md](ARCHITECTURE.md) |
-| **Déploiement** | [GUIDE_DEPLOIEMENT.md](GUIDE_DEPLOIEMENT.md) |
-| **Conformité CDC** | [RESUME_CDC.md](RESUME_CDC.md) |
-
----
-
-## 🌱 Maladies Supportées
-
-- 🍂 **Rouille du blé** - Analyse couleur rouge-orange
-- 🍇 **Mildiou du raisin** - Détecte blanc grisâtre
-- 🌼 **Oïdium** - Identifie poudrage blanc
-- 🌾 **Septoriose** - Reconnaît taches brunes
-- 💚 **Feuille saine** - Valide bonne santé
-
----
-
-## 🚢 Déploiement
-
-### **Local**
+### Local
 ```bash
 python -m uvicorn app_minimal:app --reload
 ```
 
-### **Docker**
+### Docker
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-### **Cloud (AWS)**
-```bash
-# 1. Créer instance EC2
-# 2. SSH et installer Docker
-# 3. docker-compose up -d
-```
-
-### **Complet** → [GUIDE_DEPLOIEMENT.md](GUIDE_DEPLOIEMENT.md)
+### Cloud (AWS)
+Instance EC2 avec Docker installé, puis `docker compose up -d`.
+Procédure complète : [GUIDE_DEPLOIEMENT.md](GUIDE_DEPLOIEMENT.md)
 
 ---
 
-## 📞 Support
+## Documentation du projet
 
-- **Email** : antoine.simon@chambre-agriculture.fr
-- **Documentation** : http://localhost:8000/docs
-- **Issues** : GitHub Issues
+| Document | Contenu |
+|----------|---------|
+| [ARCHITECTURE_RESEAU.md](ARCHITECTURE_RESEAU.md) | Schéma réseau détaillé, couche IoT, flux de données |
+| [JUSTIFICATION_TECHNOLOGIES.md](JUSTIFICATION_TECHNOLOGIES.md) | Choix et justification des 3 technologies imposées |
+| [GUIDE_DEPLOIEMENT.md](GUIDE_DEPLOIEMENT.md) | Procédure de déploiement complète |
+| [RESUME_FINAL.md](RESUME_FINAL.md) | Conformité au cahier des charges |
+| [CHECKLIST_FINAL.md](CHECKLIST_FINAL.md) | Checklist avant soutenance |
+| [SOUTENANCE_SCRIPT.md](SOUTENANCE_SCRIPT.md) | Script de présentation orale |
+| API Swagger | http://localhost:8000/docs |
 
 ---
 
-## 📝 Licence
+## Pédagogie
+
+Ce projet couvre les cinq domaines techniques du Bachelor 2 :
+
+- **Intelligence artificielle** : classification d'images (OpenCV)
+- **Backend** : API REST asynchrone (FastAPI)
+- **Frontend** : interface web responsive
+- **Base de données** : modèle relationnel, ORM, migrations
+- **Réseau, IoT et DevOps** : capteurs de parcelle, conteneurs Docker, déploiement cloud
+
+---
+
+## Auteur
+
+**Antoine SIMON**
+Bachelor 2 Informatique — Sup de Vinci
+Projet réalisé pour la Chambre d'Agriculture
+
+---
+
+## Licence
 
 MIT © 2026 PlantDiag
-
----
-
-## 🎉 Status
-
-```
-✅ Application fonctionnelle
-✅ Base de données persistante
-✅ API complète avec Swagger
-✅ Interface web responsive
-✅ Mobile ready (QR code)
-✅ Météo temps réel
-✅ IA diagnostic
-✅ Docker ready
-✅ Cloud ready
-✅ 100% Conforme CDC Bachelor 2
-```
-
-### **PRÊT POUR LA SOUTENANCE** 🚀
-
----
-
-**Version:** 2.0.0  
-**Date:** 28 Août 2026  
-**Auteur:** Antoine SIMON  
-**Status:** Production Ready ✅

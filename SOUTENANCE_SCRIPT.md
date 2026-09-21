@@ -1,258 +1,214 @@
 # PLANTDIAG - SCRIPT DE PRÉSENTATION ORALE (15 minutes)
 
-**Timing Total:** 15 minutes
+**Support associé :** SOUTENANCE.pptx (16 diapositives) et SOUTENANCE.docx (version imprimable de ce script)
 
 ---
 
 ## SLIDE 1 - TITRE (10 secondes)
 
 **À dire :**
-"Bonjour, je m'appelle Antoine SIMON et je présente PlantDiag, un système de diagnostic agricole par intelligence artificielle. Ce projet a été réalisé dans le cadre du Bachelor 2"
+"Bonjour, je m'appelle Antoine SIMON et je présente PlantDiag, un système de diagnostic agricole par intelligence artificielle. Ce projet a été réalisé dans le cadre du Bachelor 2, en partenariat avec la Chambre d'Agriculture."
 
 ---
 
-## SLIDE 2 - PROBLÉMATIQUE (1 min 50 secondes)
+## SLIDE 2 - PROBLÉMATIQUE (1 min 20)
 
 **À dire :**
 "Le contexte : les agriculteurs font face à un vrai problème au quotidien.
 
 Lorsqu'une maladie apparaît sur une culture, il faut l'identifier rapidement, sinon toute la récolte peut être perdue.
 
-Aujourd'hui, l'identification se fait soit manuellement, ce qui prend du temps et manque de précision, soit en contactant un expert, ce qui coûte cher.
+Aujourd'hui, l'identification se fait soit manuellement, ce qui prend du temps et manque de précision, soit en contactant un expert, ce qui coûte cher. Il n'existe pas de solution accessible et mobile pour les petits et moyens agriculteurs.
 
-Il n'existe pas de solution accessible et mobile pour les petits et moyens agriculteurs.
-
-Notre réponse : PlantDiag. Une application web mobile permettant de photographier une feuille et obtenir un diagnostic immédiat via intelligence artificielle.
-
-Simple, rapide, accessible, précise."
+Notre réponse : photographier une feuille et obtenir un diagnostic immédiat, complété par une surveillance permanente des parcelles grâce à des capteurs."
 
 ---
 
-## SLIDE 3 - OBJECTIFS CDC (30 secondes)
+## SLIDE 3 - OBJECTIFS CDC (25 secondes)
 
-**À dire (rapide):**
-"Pour respecter le cahier des charges du Bachelor 2, nous devions développer une application mobile web responsive avec une fonctionnalité IA, la déployer sur AWS avec 3 technologies imposées, et documenter complètement.
+**À dire (rapide) :**
+"Pour respecter le cahier des charges du Bachelor 2, nous devions développer une application mobile web responsive avec une fonctionnalité IA, la déployer sur AWS avec une architecture réseau intégrant des capteurs IoT, et utiliser 3 technologies imposées documentées.
 
-Résultat : 100% des objectifs réalisés."
+Résultat : 100 % des objectifs réalisés."
 
 ---
 
-## SLIDE 4 - DÉMONSTRATION LIVE (3 minutes)
+## SLIDE 4 - DÉMONSTRATION EN DIRECT (3 minutes)
 
 **À dire :**
 "Passons à la démonstration. L'application est actuellement en production sur AWS à cette adresse : http://13.51.48.254:8000
 
 Je vais montrer les principales fonctionnalités :
 
-1. D'abord, je crée une parcelle. Voilà, la parcelle est créée.
-2. Maintenant, je vais faire un diagnostic. Je clique sur l'onglet 'Diagnostic', j'upload une photo de feuille... L'IA a analysé la photo et détecté une maladie avec 87% de précision. On voit aussi le type de sévérité, les traitements recommandés.
-3. Regardez l'onglet 'Historique'. Tous les diagnostics sont sauvegardés en base de données.
-4. L'onglet 'Alertes' montre les alertes intelligentes basées sur la localisation. Les alertes changent selon votre région.
-5. La météo : je peux chercher une ville, voir les prévisions 5 jours, et ajouter mes villes préférées aux favoris.
+1. D'abord, je crée une parcelle. Elle part directement en base de données.
+2. Maintenant, je vais faire un diagnostic. Je clique sur l'onglet 'Diagnostic', j'upload une photo de feuille... L'IA a analysé la photo et détecté une maladie avec un indice de confiance élevé. On voit aussi la sévérité et les traitements recommandés.
+3. Onglet 'Capteurs' : voici le réseau. Chaque parcelle a son boîtier, qui remonte six mesures. Vous voyez le nombre de capteurs en ligne et le nombre total de trames reçues.
+4. Onglet 'Alertes' : c'est là que tout se croise. Le serveur compare les relevés des capteurs, le dernier diagnostic et la météo, puis classe les alertes par gravité.
+5. La météo : je peux chercher une ville, voir les prévisions sur cinq jours, et enregistrer mes villes favorites.
 
 Voilà pour la démo. L'application est intuitive, rapide, et déjà utilisable."
 
 ---
 
-## SLIDE 5 - FONCTIONNALITÉS (1 minute)
+## SLIDE 5 - FONCTIONNALITÉS (30 secondes)
 
 **À dire :**
-"Récapitulatif des fonctionnalités :
+"Récapitulatif des fonctionnalités : diagnostic IA, capteurs de parcelle, gestion des parcelles, historique, météo temps réel et alertes croisées.
 
-- Diagnostic IA : analyse photo, retourne 5 maladies ou feuille saine
-- Gestion parcelles : créer, éditer, supprimer
-- Historique : tous les diagnostics sauvegardés
-- Météo : temps réel plus prévisions plus risques par région
-- Alertes : intelligentes basées sur votre localisation et la météo
-
-Tout est persistant - rien ne se perd."
+Tout est persistant en base de données - rien ne dépend du navigateur."
 
 ---
 
-## SLIDE 6 - ARCHITECTURE RÉSEAU (2 minutes)
+## SLIDE 6 - ARCHITECTURE RÉSEAU (1 min 20)
 
 **À dire :**
-"Parlons de l'architecture technique. C'est un système 4 tiers :
+"Parlons de l'architecture technique. Elle part du terrain : chaque parcelle porte un capteur qui envoie ses mesures à l'API.
 
-TIER 1 - Présentation : Le frontend HTML/CSS/JavaScript que vous venez de voir. C'est responsive, ça fonctionne sur mobile et desktop.
+Viennent ensuite quatre tiers. TIER 1, la présentation : le frontend HTML/CSS/JavaScript responsive. TIER 2, le métier : l'API REST FastAPI qui gère toute la logique. TIER 3, les données : PostgreSQL pour le stockage persistant, Redis pour le cache. TIER 4, les services externes : OpenCV pour l'analyse d'image et Open-Meteo pour la météo.
 
-TIER 2 - Métier : L'API REST que j'ai construite en FastAPI. C'est l'intelligence du système, elle gère toute la logique métier.
-
-TIER 3 - Données : PostgreSQL 15 pour les données persistantes plus Redis pour le cache et les sessions.
-
-TIER 4 - Services externes : OpenCV pour l'analyse d'image IA, et Open-Meteo pour la météo en temps réel.
-
-Le flux, c'est simple : vous envoyez une photo au frontend, le frontend l'envoie à l'API, l'API la traite avec OpenCV, sauvegarde en PostgreSQL, et retourne le résultat en JSON."
+Le flux d'un diagnostic est simple : la photo part du frontend vers l'API, elle est traitée par OpenCV, sauvegardée en base, et le résultat revient en JSON."
 
 ---
 
-## SLIDE 7 - TECHNOLOGIES IMPOSÉES (1 min 30 secondes)
+## SLIDE 7 - CAPTEURS IoT (1 min 10)
+
+**À dire :**
+"Parlons des capteurs, parce que c'est ce qui rend la surveillance continue possible.
+
+Chaque boîtier mesure six grandeurs : l'humidité et la température du sol, la température et l'hygrométrie de l'air, l'humectation du feuillage, et son propre niveau de batterie. Il envoie une trame par minute, en HTTP, vers l'API.
+
+La grandeur la plus importante est l'humectation foliaire. Quand le feuillage reste mouillé et que la température est douce, entre 15 et 25 degrés, les spores germent : c'est exactement la règle qui déclenche notre alerte de risque fongique.
+
+Le serveur détecte aussi le stress hydrique, l'excès d'eau, une batterie faible et un capteur devenu muet depuis plus de quinze minutes.
+
+Aujourd'hui, ces capteurs sont simulés par un conteneur dédié - le cahier des charges l'autorise explicitement. Mais ils parlent le même protocole que de vrais boîtiers : les remplacer ne demanderait aucune modification de l'API."
+
+---
+
+## SLIDE 8 - TECHNOLOGIES IMPOSÉES (1 min 05)
 
 **À dire :**
 "Parlons des 3 technologies imposées par le CDC.
 
-1. FastAPI pour le backend Python - C'est un framework moderne, asynchrone, avec validation native. Parfait pour IA puisque Python domine ce domaine.
-2. PostgreSQL pour la base de données - C'est relationnelle, ACID-compliant, scalable, standard industrie. On a des relations claires entre utilisateurs, parcelles, et diagnostics.
-3. Docker plus AWS pour l'infrastructure - Docker permet la containerisation, votre code s'exécute pareil en dev et production. AWS c'est production-ready et gratuit 12 mois pour nous.
+FastAPI pour le backend Python - framework asynchrone, validation native, idéal pour l'IA puisque Python domine ce domaine.
 
-Ces 3 technologies fonctionnent ensemble naturellement et répondent à toutes les contraintes."
+PostgreSQL pour la base de données - relationnelle, transactions ACID, adaptée aux relations entre utilisateurs, parcelles, diagnostics et relevés de capteurs.
+
+Docker et AWS pour l'infrastructure - le conteneur garantit un comportement identique en développement et en production. Pas Kubernetes, disproportionné pour un MVP."
 
 ---
 
-## SLIDE 8 - API REST (30 secondes)
+## SLIDE 9 - INTERFACE DE PROGRAMMATION (25 secondes)
 
 **À dire :**
-"Vous pouvez consulter la documentation complète de l'API via Swagger à http://13.51.48.254:8000/docs
+"L'API expose 18 endpoints, répartis en quatre familles : authentification, parcelles, capteurs IoT, diagnostic et suivi.
 
-Nous avons 8 endpoints : 3 pour l'authentification, 3 pour l'application, 2 pour documentation.
-
-Chaque endpoint est testé et documenté."
+Tout est testable en direct via Swagger, à l'adresse slash docs."
 
 ---
 
-## SLIDE 9 - INTELLIGENCE ARTIFICIELLE (1 min 30 secondes)
+## SLIDE 10 - INTELLIGENCE ARTIFICIELLE (1 min 05)
 
 **À dire :**
-"Détaillons l'IA, c'est le coeur du projet.
+"Nous utilisons OpenCV et NumPy, les outils standards de la vision par ordinateur en Python.
 
-Nous utilisons OpenCV et NumPy, les outils standard de computer vision en Python.
+On reçoit la photo, OpenCV analyse la couleur, la saturation, le contraste et la texture, on compare ces caractéristiques aux signatures des maladies connues, et on retourne la plus probable avec un indice de confiance.
 
-Comment ça fonctionne ? On reçoit une photo de feuille. OpenCV analyse la couleur, la saturation, le contraste, la texture. On compare ces caractéristiques aux patterns connus de 5 maladies. On retourne la maladie la plus probable plus confidence score.
-
-Accuracy : 87%. C'est au-dessus du 85% requis par le CDC.
-Performance : réponse en 1.5 secondes, bien sous les 2 secondes prévues.
-
-Les 5 maladies : Mildiou, Oïdium, Rouille, Brûlure, Tache noire, plus la classe Feuille saine.
-
-C'est simple mais efficace."
+Précision : 87 %, au-dessus des 85 % requis par le CDC. Performance : réponse en 1,5 seconde."
 
 ---
 
-## SLIDE 10 - SÉCURITÉ (1 minute)
+## SLIDE 11 - SÉCURITÉ (40 secondes)
 
 **À dire :**
-"La sécurité, c'est important pour un système agricole.
-
-Authentification par JWT tokens : chaque utilisateur reçoit un token unique valide 30 jours. Pas de session côté serveur, scalable.
-
-Hachage Bcrypt : les mots de passe sont hashés avec salts, impossible à retrouver même si la BD est compromise.
-
-Validation Pydantic : chaque donnée entrante est validée avant d'entrer en BD.
-
-CORS configuré : protection contre les requêtes cross-origin malveillantes.
-
-HTTPS ready : on peut activer HTTPS avec Let's Encrypt en production.
-
-Les données utilisateur sont persistantes et sécurisées en PostgreSQL."
+"Six couches de sécurité : jetons JWT valables trente jours sans session côté serveur, mots de passe hachés avec Bcrypt et sel, validation systématique des données entrantes - y compris les trames des capteurs -, CORS configuré, HTTPS prêt via Let's Encrypt, et isolation des données par utilisateur."
 
 ---
 
-## SLIDE 11 - DÉPLOIEMENT AWS (1 min 30 secondes)
+## SLIDE 12 - DÉPLOIEMENT (50 secondes)
 
 **À dire :**
-"Comment est-ce déployé en production ?
+"Une instance AWS EC2 t2.micro sous Ubuntu, adresse IP publique, disponible en continu, gratuite pendant douze mois.
 
-Nous utilisons une instance AWS EC2 t2.micro dans la région US-East-1.
+Elle exécute quatre conteneurs Docker : l'API, PostgreSQL, Redis et le simulateur de capteurs. Les volumes sont persistants, les données survivent à tout redémarrage.
 
-Cette instance exécute 3 conteneurs Docker : FastAPI API, PostgreSQL 15, et Redis 7.
-
-Les volumes Docker sont persistants - les données ne se perdent pas si un conteneur s'arrête.
-
-L'instance a une adresse IP publique : 13.51.48.254. L'application est donc accessible 24/7 depuis n'importe où.
-
-Gratuit pendant 12 mois avec AWS Free Tier.
-
-C'est production-ready. Pas juste une demo sur un laptop."
+C'est de la production, pas une démonstration sur un ordinateur portable."
 
 ---
 
-## SLIDE 12 - MÉTRIQUES (1 minute)
+## SLIDE 13 - RÉSULTATS MESURÉS (40 secondes)
 
 **À dire :**
-"Regardons les chiffres du projet par rapport aux objectifs du CDC :
+"Face aux objectifs : 18 endpoints livrés pour 5 demandés. 1,5 seconde de temps de réponse contre moins de 2 exigées. 87 % de précision contre 85 demandés. Un relevé par minute et par capteur, soit une surveillance continue.
 
-Endpoints API : objectif 5 plus, nous avons 8. Plus 60% !
-Temps de réponse : objectif inférieur à 2 secondes, nous avons 1.5 secondes. Moins 25% !
-Accuracy IA : objectif supérieur à 85%, nous avons 87%. Plus 2% !
-Technologies imposées : objectif 3, nous avons 3. 100% !
-Documentation : objectif complète, nous avons 6 fichiers.
-
-Le projet dépasse les attentes sur tous les critères mesurables."
+Chaque critère mesurable est atteint ou dépassé."
 
 ---
 
-## SLIDE 13 - COMPÉTENCES BACHELOR 2 (45 secondes)
+## SLIDE 14 - COMPÉTENCES BACHELOR 2 (25 secondes)
 
 **À dire :**
-"Ce projet démontre toutes les compétences du Bachelor 2 :
-
-IA/ML : analyse d'image OpenCV, classification multi-classe, confidence scoring.
-
-Backend : API REST, async/await, ORM SQLAlchemy, gestion d'erreurs.
-
-Frontend : HTML5, CSS3, JavaScript, API consumption, responsive design.
-
-Database : PostgreSQL, relations, transactions ACID, indexing.
-
-DevOps/Cloud : Docker multi-container, AWS EC2, architecture scalable.
-
-C'est un projet complet qui touche à tous les domaines."
+"Ce projet couvre les cinq domaines du Bachelor 2 : intelligence artificielle, développement backend, développement frontend, bases de données, et réseau avec l'IoT et le cloud."
 
 ---
 
-## SLIDE 14 - CONCLUSION (1 minute)
+## SLIDE 15 - CONCLUSION (30 secondes)
 
 **À dire :**
-"En conclusion :
+"PlantDiag est fonctionnel, conforme au cahier des charges, documenté et évolutif.
 
-PlantDiag est une solution production-ready, 100% conforme au CDC, et immédiatement utilisable par des agriculteurs réels.
-
-Application fonctionnelle et déployée en production. Code source nettoyé et versionnalisé sur GitHub. Architecture documentée et scalable. 3 technologies Bachelor 2 maîtrisées et intégrées.
-
-C'est plus qu'une simple école - c'est un produit réel."
+Il est immédiatement utilisable par un agriculteur, depuis son téléphone, dans son champ."
 
 ---
 
-## SLIDE 15 - QUESTIONS (1 min 30 secondes)
+## SLIDE 16 - QUESTIONS (1 min 30)
 
 **À dire :**
 "Merci de votre attention.
 
-L'application est accessible à : http://13.51.48.254:8000
-La documentation API Swagger à : http://13.51.48.254:8000/docs
-Le code source complet sur GitHub : github.com/Antonito35/diagnositique-plante
-
-Des questions ?"
+L'application, la documentation de l'API et le code source complet sont aux adresses affichées. Je suis à votre disposition pour vos questions."
 
 ---
 
 ## QUESTIONS POSSIBLES ET RÉPONSES
 
-**Q: "Pourquoi FastAPI et pas Node.js ?"**
-R: "Parce que Python domine le domaine de l'IA et du machine learning. OpenCV, NumPy, tous les outils IA standards sont en Python. FastAPI est le framework Python le plus rapide et moderne."
+**Q : "Les capteurs sont-ils réels ?"**
+R : "Non, ils sont simulés par un conteneur dédié, et le cahier des charges l'autorise explicitement : « capteurs IoT simulés ou réels ». Les trames partent en HTTP vers l'API exactement comme le feraient de vrais capteurs, et le serveur ne fait pas de différence."
 
-**Q: "Comment fonctionne exactement l'IA ?"**
-R: "OpenCV analyse les pixels : couleur, saturation, contraste, texture. On compare à des patterns connus de maladies. C'est du computer vision classique, pas du deep learning, donc c'est simple et efficace."
+**Q : "Comment passeriez-vous à de vrais capteurs ?"**
+R : "En remplaçant le conteneur par des boîtiers physiques qui envoient la même trame JSON sur le même endpoint. Aucune ligne de l'API ne changerait."
 
-**Q: "Pouvez-vous scaler cette solution ?"**
-R: "Oui. Aujourd'hui 1 instance EC2, mais on peut facilement passer à plusieurs instances avec un load balancer. AWS Auto-scaling est prêt. On pourrait aussi passer à Kubernetes plus tard."
+**Q : "Pourquoi mesurer l'humectation du feuillage ?"**
+R : "Parce que c'est le facteur déclenchant des maladies fongiques. Une spore a besoin d'eau libre sur la feuille pour germer, et d'une température douce. L'humidité de l'air ne suffit pas à le dire."
 
-**Q: "Pourquoi PostgreSQL et pas MongoDB ?"**
-R: "Parce qu'on a une structure relationnelle claire : Utilisateurs vers Parcelles vers Diagnostics. PostgreSQL garantit les transactions ACID - les données ne peuvent pas être corrompues même en cas de panne."
+**Q : "Pourquoi FastAPI plutôt que Node.js ?"**
+R : "Parce que toute la chaîne d'intelligence artificielle est en Python : OpenCV, NumPy. FastAPI est en plus asynchrone et génère sa documentation automatiquement."
 
-**Q: "Combien coûte ce système ?"**
-R: "Le côté application : 0 euros, c'est de l'open source. AWS : gratuit 12 mois avec Free Tier, puis environ 5-10 euros par mois pour une instance t2.micro. C'est très accessible pour une chambre d'agriculture."
+**Q : "Comment fonctionne exactement l'IA ?"**
+R : "C'est de la vision par ordinateur classique, pas du deep learning. OpenCV extrait des caractéristiques de l'image - couleur, saturation, contraste, texture - et je les compare aux signatures des maladies connues."
 
-**Q: "Les données sont sécurisées ?"**
-R: "Oui. Authentification JWT, Bcrypt pour les mots de passe, validation des données en entrée. On peut ajouter HTTPS avec Let's Encrypt en production. Les données sont persistantes en PostgreSQL."
+**Q : "Pourquoi 87 % de précision et pas 99 % ?"**
+R : "Un réseau de neurones convolutif ferait mieux, mais demanderait un jeu de données annoté et beaucoup plus de ressources serveur. Pour une première indication fiable en une seconde, 87 % est pertinent. C'est aussi une évolution possible du projet."
 
-**Q: "Pourquoi 87% d'accuracy et pas 99% ?"**
-R: "Parce qu'on n'utilise pas du deep learning lourd. On utilise OpenCV classique qui est plus simple et rapide. 87% est déjà excellent pour du computer vision classique et suffisant pour un agriculteur."
+**Q : "Pourquoi PostgreSQL plutôt que MongoDB ?"**
+R : "Parce que le modèle est relationnel : utilisateur, parcelle, diagnostic, relevé de capteur. PostgreSQL garantit les transactions ACID."
 
-**Q: "Ça marche sur mobile ?"**
-R: "Oui, c'est responsive. Fonctionne sur iPhone, Android, depuis le navigateur. Pas besoin d'app native."
+**Q : "Cette solution peut-elle monter en charge ?"**
+R : "Oui. Une seule instance EC2 suffit aujourd'hui. L'étape suivante serait un groupe d'auto-scaling derrière un répartiteur de charge, puis des réplicas en lecture."
+
+**Q : "Combien coûte le système ?"**
+R : "Le logiciel est open source, donc gratuit. AWS est gratuit pendant douze mois, puis environ cinq à dix euros par mois pour une instance t2.micro."
+
+**Q : "Les données sont-elles sécurisées ?"**
+R : "Oui : jetons JWT, mots de passe hachés avec Bcrypt, validation systématique des données entrantes, CORS configuré, isolation par utilisateur."
+
+**Q : "Que se passe-t-il si un capteur tombe en panne ?"**
+R : "Le serveur le détecte : au-delà de quinze minutes sans trame, le capteur est marqué hors ligne et une alerte de maintenance remonte."
+
+**Q : "Ça marche sur mobile ?"**
+R : "Oui, l'interface est responsive et s'ouvre dans le navigateur, sans installation. L'appareil photo du téléphone est directement utilisable."
 
 ---
 
-**Durée totale : 15 minutes exactement**
-**Pratique avec une horloge à côté avant la présentation !**
+**Durée totale : 15 minutes**
+**Pratiquer avec un chronomètre avant la présentation.**

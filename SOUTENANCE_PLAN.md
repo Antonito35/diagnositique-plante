@@ -13,11 +13,11 @@
 - 📱 **Solution** : Une application mobile qui diagnostique en **moins de 2 secondes**
 - ✨ **Résultat** : Économies de temps et d'argent
 
-**Visual :** Montrer juste la photo d'une plante malade
+**Visuel :** Montrer juste la photo d'une plante malade
 
 ---
 
-## **SLIDE 3-4 : DÉMO LIVE (3 min)**
+## **SLIDE 3-4 : DÉMO EN DIRECT (3 min)**
 
 ### Titre : "Démonstration en Direct"
 
@@ -85,12 +85,12 @@
 
 **À dire :**
 - "L'IA analyse les caractéristiques visuelles de la plante"
-- "Elle reconnaît les 5 maladies principales"
-- "Accuracy : 87% - Très fiable"
+- "Elle reconnaît 4 maladies et l'état sain"
+- "Précision : 87 % - Fiable pour une première indication"
 - "La météo améliore la prédiction"
 - "Exemple : Si humidité > 80% + température 15-25°C → Risque mildiou élevé"
 
-**Visual :**
+**Visuel :**
 - Montrer la matrice de confiance du diagnostic
 - Graphique de risque par jour
 
@@ -119,10 +119,10 @@
 
 4. **Performance**
    - Temps de réponse : < 2 secondes
-   - Uptime : 99.9%
+   - Disponibilité : continue depuis le déploiement
    - Coût : Gratuit 12 mois AWS
 
-**Visual :** Logo AWS + diagramme de déploiement (pas de terminal)
+**Visuel :** Logo AWS + diagramme de déploiement (pas de terminal)
 
 ---
 
@@ -179,7 +179,7 @@
 **Q : Comment l'IA reconnaît les maladies ?**
 R : "L'IA analyse la couleur, la texture, et les patterns visuels de la plante. Elle a été entraînée sur des milliers d'images de maladies."
 
-**Q : Ça marche offline ?**
+**Q : Ça marche sans connexion ?**
 R : "Non, l'app a besoin d'une connexion internet pour la météo et la base de données. Mais c'est normal pour une app agricole."
 
 **Q : Coût pour les agriculteurs ?**
@@ -189,7 +189,7 @@ R : "Nous proposons un abonnement mensuel abordable. La première année est gra
 R : "PostgreSQL est plus robuste et scalable pour la production. SQLite est pour le développement local."
 
 **Q : Pourquoi AWS ?**
-R : "AWS est le leader cloud avec 99.9% de uptime garanti. Les agriculteurs peuvent y accéder de n'importe où."
+R : "AWS est le leader du cloud, avec une infrastructure conçue pour une haute disponibilité. Les agriculteurs peuvent y accéder de n'importe où."
 
 ---
 
@@ -207,9 +207,9 @@ R : "AWS est le leader cloud avec 99.9% de uptime garanti. Les agriculteurs peuv
 ## 🎯 **RÉSUMÉ - FAIRE**
 
 ✅ Montrer l'application en action
-✅ Expliquer l'impact business
+✅ Expliquer l'impact concret pour l'agriculteur
 ✅ Utiliser des diagrammes
-✅ Parler des résultats (87% accuracy, < 2s)
+✅ Parler des résultats (87 % de précision, < 2 s de réponse)
 ✅ Parler de l'infrastructure cloud
 ✅ Montrer l'interface utilisateur
 ✅ Être confiant et naturel
@@ -255,6 +255,6 @@ Min 14-15: Questions
 
 ---
 
-**Status** : Prêt pour la soutenance ! 🚀
+**Statut** : Prêt pour la soutenance ! 🚀
 **Durée** : 15 minutes
-**Focus** : Démo + Impact, pas code
+**Priorité** : Démo et impact, pas de code

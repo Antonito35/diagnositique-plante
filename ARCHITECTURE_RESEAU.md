@@ -185,11 +185,11 @@ Capable de supporter :
 - 1000+ diagnostics/jour
 - 50+ requêtes/sec
 
-Pour scaler :
-- Auto Scaling Group (AWS)
-- Load Balancer (ELB)
-- Database Read Replicas
-- CloudFront CDN (statique)
+Pour monter en charge :
+- Groupe d'auto-scaling (AWS)
+- Répartiteur de charge (ELB)
+- Réplicas de lecture de la base de données
+- CDN CloudFront pour les fichiers statiques
 ```
 
 ---
@@ -199,31 +199,30 @@ Pour scaler :
 **Docker Compose** :
 - ✅ Isolé par conteneur
 - ✅ Versions reproductibles
-- ✅ Déploiement one-command
-- ✅ Dev = Prod
+- ✅ Déploiement en une seule commande
+- ✅ Environnement identique en développement et en production
 
-**Cloud Ready** :
+**Portabilité cloud** :
 - ✅ AWS EC2 (actuel)
-- ✅ Azure Container Instances (possible)
-- ✅ Kubernetes (future)
+- ✅ Azure Container Instances (possible, non testé)
+- ✅ Kubernetes (évolution possible)
 
 ---
 
 ## 📍 **Déploiement Actuel**
 
 ```
-Région : AWS us-east-1
+Fournisseur : AWS EC2
 Instance : t2.micro (gratuit 12 mois)
 OS : Ubuntu 22.04 LTS
 IP Publique : 13.51.48.254
 
-Status : 🟢 LIVE
-Uptime : 99.9%
-Latence API : ~1.5s
+Statut : 🟢 En ligne
+Latence API : ~1,5 s
 ```
 
 ---
 
-**Version** : 2.0  
-**Date** : 2026-09-19  
-**CDC Conforme** : ✅ Oui
+**Version** : 2.1  
+**Date** : 2026-09-21  
+**Conforme au CDC** : ✅ Oui

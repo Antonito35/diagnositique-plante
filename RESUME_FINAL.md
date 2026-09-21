@@ -1,48 +1,48 @@
-# ✅ PlantDiag - Résumé Final CDC 100% Conforme
+# PlantDiag - Résumé Final de Conformité au Cahier des Charges
 
-**Date** : 2026-09-19  
-**Status** : 🟢 PRÊT POUR SOUTENANCE  
-**Conformité CDC** : ✅ 100%
+**Date** : 2026-09-21
+**Statut** : 🟢 PRÊT POUR LA SOUTENANCE
+**Conformité au CDC** : ✅ 100 %
 
 ---
 
-## 📋 **CHECKLIST CDC - TOUS LES OBJECTIFS ATTEINTS**
+## 📋 **CHECKLIST CDC — TOUS LES OBJECTIFS ATTEINTS**
 
 ### **I. Contexte ✅**
-- ✅ Projet pour Chambre d'Agriculture
-- ✅ Technologies Bachelor 1 & 2 utilisées
+- ✅ Projet réalisé pour la Chambre d'Agriculture
+- ✅ Technologies étudiées en Bachelor 1 et 2
 - ✅ IA simple mais fonctionnelle
-- ✅ Infrastructure cloud-ready
+- ✅ Infrastructure cloud opérationnelle
 
 ### **II. Objectifs ✅**
 - ✅ Application mobile complète (web responsive)
 - ✅ Fonctionnalité IA (diagnostic de maladies)
-- ✅ Infrastructure cloud (AWS EC2 live)
-- ✅ Architecture réseau simplifiée (documentée)
+- ✅ Infrastructure cloud (AWS EC2 en ligne)
+- ✅ Architecture réseau avec capteurs IoT (documentée)
 
-### **III. Technologies Imposées ✅**
-- ✅ **Backend** : Python FastAPI
-- ✅ **Database** : PostgreSQL 15
+### **III. Technologies imposées ✅**
+- ✅ **Backend** : Python, FastAPI
+- ✅ **Base de données** : PostgreSQL 15
 - ✅ **Infrastructure** : Docker + AWS
 
-### **IV. Fonctionnalités Principales ✅**
-- ✅ **Tableau de bord** : Parcelles, historique, alertes
-- ✅ **Diagnostic IA** : Photo → analyse → résultat (87% accuracy)
-- ✅ **Gestion parcelles** : Créer, éditer, supprimer
-- ✅ **Météo temps réel** : Open-Meteo API intégrée
-- ✅ **Code QR mobile** : Accès facile depuis téléphone
-- ✅ **Alertes intelligentes** : Détection maladie + météo
+### **IV. Fonctionnalités principales ✅**
+- ✅ **Tableau de bord** : parcelles, capteurs, historique, alertes
+- ✅ **Diagnostic IA** : photo → analyse → résultat (87 % de précision)
+- ✅ **Capteurs IoT** : surveillance continue des parcelles
+- ✅ **Gestion des parcelles** : créer, éditer, supprimer
+- ✅ **Météo en temps réel** : API Open-Meteo intégrée
+- ✅ **Alertes croisées** : capteurs + diagnostics IA + météo
 
-### **V. Architecture Technique ✅**
-- ✅ Frontend → Backend → Database (3 tiers)
+### **V. Architecture technique ✅**
+- ✅ Capteurs de terrain → Frontend → Backend → Base de données (couche IoT + 4 tiers)
 - ✅ IA embarquée (OpenCV + NumPy)
 - ✅ API météo intégrée
-- ✅ Schéma documenté (ARCHITECTURE_RESEAU.md)
+- ✅ Schéma documenté ([ARCHITECTURE_RESEAU.md](ARCHITECTURE_RESEAU.md))
 
 ### **VI. Déploiement ✅**
-- ✅ Cloud AWS EC2 (LIVE)
+- ✅ Cloud AWS EC2 (en ligne)
 - ✅ URL publique : http://13.51.48.254:8000
-- ✅ Docker containerisé
+- ✅ Conteneurisé avec Docker
 - ✅ Bases de données persistantes
 
 ### **VII. Livrables ✅**
@@ -56,144 +56,147 @@
 - ✅ Déploiement cloud confirmé
 - ✅ Documentation technique complète
 
-### **IX. Critères d'Évaluation ✅**
-- ✅ Pertinence solution (diagnostic agricole réel)
-- ✅ Qualité développement (code propre, architecture scalable)
-- ✅ Fonctionnalités réalisées (8/8 endpoints API)
-- ✅ Intégration IA (87% accuracy)
-- ✅ Infrastructure cloud (AWS production-ready)
+### **IX. Critères d'évaluation ✅**
+- ✅ Pertinence de la solution (diagnostic agricole réel)
+- ✅ Qualité du développement (code propre, architecture évolutive)
+- ✅ Fonctionnalités réalisées (18 endpoints API)
+- ✅ Intégration IA (87 % de précision)
+- ✅ Infrastructure cloud (production-ready)
 
 ---
 
 ## 🎯 **FONCTIONNALITÉS COMPLÈTES**
 
-### **Core Features (Priorité 1) ✅**
+### **Fonctionnalités principales ✅**
 ```
 ✅ Diagnostic par photo (IA)
-✅ Analyse maladie (87% accuracy)
-✅ Sauvegarde BD (PostgreSQL)
-✅ Historique diagnostics
-✅ Météo temps réel
-✅ Gestion parcelles
-✅ API REST (8 endpoints)
-✅ Code QR mobile
+✅ Analyse de maladie (87 % de précision)
+✅ Sauvegarde en base (PostgreSQL)
+✅ Historique des diagnostics
+✅ Capteurs IoT (2 boîtiers simulés, 6 mesures/minute)
+✅ Alertes croisées (capteurs + IA + météo)
+✅ Météo en temps réel
+✅ Gestion des parcelles
+✅ API REST (18 endpoints)
 ✅ Authentification JWT
-✅ Alertes intelligentes
 ```
 
-### **Infrastructure (Priorité 1) ✅**
+### **Infrastructure ✅**
 ```
-✅ Docker containerization
-✅ PostgreSQL database
-✅ Redis cache
-✅ AWS EC2 deployment
-✅ Nginx reverse proxy ready
+✅ Conteneurisation Docker
+✅ Base de données PostgreSQL
+✅ Cache Redis
+✅ Simulateur de capteurs IoT (conteneur dédié)
+✅ Déploiement AWS EC2
 ```
 
-### **Documentation (Priorité 1) ✅**
+### **Documentation ✅**
 ```
-✅ ARCHITECTURE_RESEAU.md (réseau 4 tiers)
+✅ ARCHITECTURE_RESEAU.md (terrain IoT + réseau 4 tiers)
 ✅ JUSTIFICATION_TECHNOLOGIES.md (pourquoi FastAPI/PostgreSQL/Docker)
 ✅ GUIDE_DEPLOIEMENT.md (déploiement cloud)
 ✅ README_FINAL.md (guide utilisateur)
 ✅ CHECKLIST_FINAL.md (suivi complet)
-✅ RESUME_CDC.md (conformité CDC)
-✅ SOUTENANCE.html (slides prêtes)
-✅ SOUTENANCE_PLAN.md (plan 15 min)
+✅ SOUTENANCE_SCRIPT.md (script détaillé de présentation)
+✅ SOUTENANCE.pptx (diaporama, 16 diapositives)
+✅ SOUTENANCE_PLAN.md (plan 15 minutes)
 ```
 
 ---
 
-## 🌐 **ACCÈS LIVE**
+## 🌐 **ACCÈS EN LIGNE**
 
 ```
-🟢 APPLICATION : http://13.51.48.254:8000
-🟢 SWAGGER API : http://13.51.48.254:8000/docs
-🟢 GITHUB REPO : https://github.com/Antonito35/diagnositique-plante.git
-🟢 STATUS : RUNNING 24/7
+🟢 APPLICATION      : http://13.51.48.254:8000
+🟢 API SWAGGER       : http://13.51.48.254:8000/docs
+🟢 DÉPÔT GITHUB      : https://github.com/Antonito35/diagnositique-plante.git
+🟢 STATUT            : ACTIF 24 h / 24
 ```
 
 ---
 
-## 📊 **METRICS FINALES**
+## 📊 **MÉTRIQUES FINALES**
 
-| Métrique | Cible CDC | Atteint | Status |
+| Métrique | Cible CDC | Atteint | Statut |
 |----------|-----------|---------|--------|
-| **Endpoints API** | 5+ | 8 | ✅ +60% |
-| **Temps API** | < 2s | ~1.5s | ✅ -25% |
-| **Accuracy IA** | > 85% | 87% | ✅ +2% |
-| **Technologies** | 3 | 3 | ✅ 100% |
-| **Documentation** | Complète | Oui | ✅ 7 docs |
-| **Déploiement** | Cloud | AWS Live | ✅ Live |
-| **Architecture** | Diagramme | Oui | ✅ 4 tiers |
-| **Sécurité** | JWT | Bcrypt + JWT | ✅ +1 layer |
+| **Endpoints API** | 5+ | 18 | ✅ +260 % |
+| **Temps de réponse** | < 2 s | ~1,5 s | ✅ -25 % |
+| **Précision de l'IA** | > 85 % | 87 % | ✅ +2 pts |
+| **Technologies imposées** | 3 | 3 | ✅ 100 % |
+| **Capteurs IoT** | simulés ou réels | 2 capteurs, 6 mesures | ✅ |
+| **Documentation** | Complète | Oui | ✅ 8 documents |
+| **Déploiement** | Cloud | AWS en ligne | ✅ |
+| **Architecture** | Diagramme | Oui | ✅ terrain + 4 tiers |
+| **Sécurité** | JWT | Bcrypt + JWT | ✅ |
 
 ---
 
 ## 🎓 **COMPÉTENCES BACHELOR 2 DÉMONTRÉES**
 
-### **IA/ML ✅**
+### **IA / Machine Learning ✅**
 - Analyse d'image (OpenCV)
-- Détection de patterns (couleur, saturation, contraste)
-- Classification (5 maladies + feuille saine)
+- Détection de motifs (couleur, saturation, contraste)
+- Classification (4 maladies + feuille saine)
 
 ### **Backend ✅**
 - API REST (FastAPI)
-- Asynchrone (async/await)
+- Programmation asynchrone
 - Authentification (JWT + Bcrypt)
 - ORM (SQLAlchemy)
 
 ### **Frontend ✅**
-- Responsive Design (HTML/CSS/JS)
-- DOM manipulation
-- API consumption
-- UX/UI (green agricultural theme)
+- Interface responsive (HTML/CSS/JS)
+- Manipulation du DOM
+- Consommation d'API REST
+- Identité visuelle agricole (thème vert)
 
-### **Database ✅**
-- SQL (PostgreSQL)
-- Relationships (users → parcels → diagnostics)
-- Transactions (ACID)
-- Indexing
+### **Base de données ✅**
+- Modélisation PostgreSQL
+- Relations utilisateur → parcelle → diagnostic → relevé capteur
+- Transactions ACID
+- Indexation
 
-### **Cloud/DevOps ✅**
-- Docker containerization
-- AWS EC2 deployment
-- Architecture design
-- Scalability planning
+### **Réseau, IoT et Cloud ✅**
+- Capteurs de parcelle et ingestion des trames
+- Conteneurisation Docker
+- Déploiement AWS EC2
+- Conception d'architecture évolutive
 
 ---
 
 ## 📈 **ÉVOLUTION DU PROJET**
 
 ```
-Jour 1 : Diagnostic basique
+Étape 1 : Diagnostic IA basique
         ↓
-Jour 2 : Database + Météo
+Étape 2 : Base de données + Météo
         ↓
-Jour 3 : Déploiement AWS
+Étape 3 : Déploiement AWS
         ↓
-Jour 4 : Authentification
+Étape 4 : Authentification
         ↓
-Jour 5 : Architecture + Alertes
+Étape 5 : Architecture documentée + Alertes régionales
         ↓
-🎉 Prêt pour soutenance (5 jours)
+Étape 6 : Capteurs IoT + persistance complète des parcelles
+        ↓
+🎉 Prêt pour la soutenance
 ```
 
 ---
 
-## ⏰ **TIMELINE SOUTENANCE**
+## ⏰ **CHRONOLOGIE DE LA SOUTENANCE**
 
 **Mardi 24 septembre 2026**
 
 ```
-2 min  : Présentation problématique
-3 min  : Démo live (http://13.51.48.254:8000)
-3 min  : Architecture réseau (diagramme)
-2 min  : IA + Métriques
-3 min  : Déploiement cloud AWS
-2 min  : Questions/Conclusion
-───────
-15 min : TOTAL
+2 min      : Problématique et objectifs
+3 min 30   : Démo en direct (application, capteurs, alertes)
+2 min 30   : Architecture réseau et capteurs IoT
+2 min 35   : Technologies, API, intelligence artificielle
+2 min 10   : Sécurité, déploiement, résultats
+2 min 25   : Compétences, conclusion, questions
+───────────
+15 min     : TOTAL
 ```
 
 ---
@@ -201,63 +204,67 @@ Jour 5 : Architecture + Alertes
 ## ✅ **PRÊT POUR L'ORAL**
 
 ### **À montrer**
-- ✅ Application live (créer parcelle → diagnostic → historique)
-- ✅ Alertes intelligentes
-- ✅ Swagger API (/docs)
-- ✅ Diagramme architecture réseau
-- ✅ Tableau justification technologies
+- ✅ Application en ligne (créer parcelle → diagnostic → historique)
+- ✅ Réseau de capteurs IoT (onglet Capteurs)
+- ✅ Alertes croisées
+- ✅ API Swagger (/docs)
+- ✅ Diagramme d'architecture réseau
+- ✅ Tableau de justification des technologies
 
 ### **À expliquer**
-- ✅ Pourquoi FastAPI (IA-friendly, async)
+- ✅ Pourquoi FastAPI (adapté à l'IA, asynchrone)
 - ✅ Pourquoi PostgreSQL (ACID, relationnel)
-- ✅ Pourquoi Docker (reproducibilité)
+- ✅ Pourquoi Docker (reproductibilité)
 - ✅ Pourquoi AWS (scalabilité, gratuit 12 mois)
-- ✅ Architecture 4 tiers (utilisateur → API → DB → Services)
+- ✅ Architecture terrain + 4 tiers (capteurs → API → BD → Services)
+- ✅ Comment les capteurs simulés remplaceraient de vrais boîtiers
 
 ### **À préparer**
-- ✅ Slides SOUTENANCE.html (13 slides prêtes)
-- ✅ Plan 15 min (SOUTENANCE_PLAN.md)
-- ✅ Réponses aux questions
-- ✅ Connection WiFi testée
+- ✅ Diaporama SOUTENANCE.pptx (16 diapositives)
+- ✅ Script détaillé (SOUTENANCE.docx / SOUTENANCE_SCRIPT.md)
+- ✅ Plan 15 minutes (SOUTENANCE_PLAN.md)
+- ✅ Réponses aux questions possibles
+- ✅ Connexion WiFi testée
 
 ---
 
 ## 🎯 **RÉSULTAT FINAL**
 
 ```
-CDC Objectifs :  15/15 ✅
-Fonctionnalités : 10/10 ✅
-Technologies :   3/3 ✅
-Documentation :  7/7 ✅
-Déploiement :    ✅ Live
-Performance :    ✅ 1.5s
-Sécurité :       ✅ JWT+Bcrypt
-IA Accuracy :    ✅ 87%
+Objectifs du CDC      : 5/5    ✅
+Technologies imposées : 3/3    ✅
+Documentation         : 8/8    ✅
+Déploiement           : ✅ En ligne
+Temps de réponse      : ✅ 1,5 s
+Sécurité              : ✅ JWT + Bcrypt
+Précision de l'IA     : ✅ 87 %
+Capteurs IoT          : ✅ Actifs
 
-🟢 STATUS GLOBAL : PRODUCTION READY
-🟢 PRÊT POUR : SOUTENANCE
-🟢 CONFORME : 100% CDC
+🟢 STATUT GLOBAL   : PRÊT POUR LA PRODUCTION
+🟢 SOUTENANCE      : PRÊTE
+🟢 CONFORMITÉ CDC  : 100 %
 ```
 
 ---
 
-## 📋 **CHECKLIST AVANT ORAL**
+## 📋 **CHECKLIST AVANT L'ORAL**
 
-- [ ] Tester app live (créer parcelle + diagnostic)
-- [ ] Tester Swagger API
-- [ ] Tester Alertes
-- [ ] Vérifier WiFi
-- [ ] Slides SOUTENANCE.html prêtes
-- [ ] Plan 15 min mémorisé
+- [ ] Tester l'application en direct (créer parcelle + diagnostic)
+- [ ] Tester l'onglet Capteurs (réseau en ligne)
+- [ ] Tester l'API Swagger
+- [ ] Tester les Alertes
+- [ ] Vérifier le WiFi
+- [ ] Diaporama SOUTENANCE.pptx prêt
+- [ ] Plan 15 minutes mémorisé
 - [ ] Réponses aux questions prêtes
-- [ ] Dormir bien samedi/dimanche
-- [ ] Arriver 10 min avant
+- [ ] Bien dormir samedi et dimanche
+- [ ] Arriver 10 minutes avant
 
 ---
 
-**Version** : 2.0  
-**Auteur** : Antoine SIMON  
-**Dernière mise à jour** : 2026-09-19  
-**Status** : ✅ PRODUCTION READY
+**Version** : 2.1
+**Auteur** : Antoine SIMON
+**Dernière mise à jour** : 2026-09-21
+**Statut** : ✅ PRÊT POUR LA PRODUCTION
 
-**LET'S GO FOR THE PRESENTATION! 🚀🎓**
+**BON COURAGE POUR LA SOUTENANCE ! 🚀🎓**
