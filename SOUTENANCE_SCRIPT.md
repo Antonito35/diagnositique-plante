@@ -7,7 +7,7 @@
 ## SLIDE 1 - TITRE (10 secondes)
 
 **À dire :**
-"Bonjour, je m'appelle Antoine SIMON et je présente PlantDiag, un système de diagnostic agricole par intelligence artificielle. Ce projet a été réalisé dans le cadre du Bachelor 2, en partenariat avec la Chambre d'Agriculture."
+"Bonjour, je m'appelle Antoine SIMON et je présente PlantDiag, un système de diagnostic agricole par intelligence artificielle. Ce projet a été réalisé dans le cadre du Bachelor 2"
 
 ---
 
@@ -45,13 +45,9 @@ Résultat : 100% des objectifs réalisés."
 Je vais montrer les principales fonctionnalités :
 
 1. D'abord, je crée une parcelle. Voilà, la parcelle est créée.
-
 2. Maintenant, je vais faire un diagnostic. Je clique sur l'onglet 'Diagnostic', j'upload une photo de feuille... L'IA a analysé la photo et détecté une maladie avec 87% de précision. On voit aussi le type de sévérité, les traitements recommandés.
-
 3. Regardez l'onglet 'Historique'. Tous les diagnostics sont sauvegardés en base de données.
-
 4. L'onglet 'Alertes' montre les alertes intelligentes basées sur la localisation. Les alertes changent selon votre région.
-
 5. La météo : je peux chercher une ville, voir les prévisions 5 jours, et ajouter mes villes préférées aux favoris.
 
 Voilà pour la démo. L'application est intuitive, rapide, et déjà utilisable."
@@ -96,9 +92,7 @@ Le flux, c'est simple : vous envoyez une photo au frontend, le frontend l'envoie
 "Parlons des 3 technologies imposées par le CDC.
 
 1. FastAPI pour le backend Python - C'est un framework moderne, asynchrone, avec validation native. Parfait pour IA puisque Python domine ce domaine.
-
 2. PostgreSQL pour la base de données - C'est relationnelle, ACID-compliant, scalable, standard industrie. On a des relations claires entre utilisateurs, parcelles, et diagnostics.
-
 3. Docker plus AWS pour l'infrastructure - Docker permet la containerisation, votre code s'exécute pareil en dev et production. AWS c'est production-ready et gratuit 12 mois pour nous.
 
 Ces 3 technologies fonctionnent ensemble naturellement et répondent à toutes les contraintes."
