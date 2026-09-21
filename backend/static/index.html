@@ -1203,7 +1203,7 @@
                     <div class="parcel-name" onclick="selectParcel(${p.id})">${p.name}</div>
                     <div class="parcel-info" onclick="selectParcel(${p.id})">${p.crop_type}</div>
                     <div onclick="selectParcel(${p.id})">
-                        ${p.last_diagnosis ? `<span class="parcel-badge badge-${p.last_diagnosis === 'Feuille saine' ? 'ok' : 'alert'}">${p.last_diagnosis}</span>` : '<span class="parcel-badge badge-empty">Pas diagnostiqué</span>'}
+                        ${p.last_diagnosis ? `<span class="parcel-badge badge-${/sain/i.test(p.last_diagnosis) ? 'ok' : 'alert'}">${p.last_diagnosis}</span>` : '<span class="parcel-badge badge-empty">Pas diagnostiqué</span>'}
                     </div>
                     ${sensorSummary(p.id)}
                 </div>

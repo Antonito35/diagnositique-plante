@@ -94,7 +94,7 @@ async def list_alerts(user_id: int, db: Session = Depends(get_db)):
         .order_by(Diagnostic.created_at.desc())
         .first()
     )
-    if recent and recent.disease_name and recent.disease_name != "Feuille saine":
+    if recent and recent.disease_name and "sain" not in recent.disease_name.lower():
         alerts.append({
             "level": "danger",
             "source": "Diagnostic IA",
