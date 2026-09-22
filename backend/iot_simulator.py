@@ -17,6 +17,10 @@ import requests
 API_URL = os.getenv("API_URL", "http://api:8000")
 INTERVAL_SECONDS = int(os.getenv("SENSOR_INTERVAL_SECONDS", "60"))
 USER_ID = int(os.getenv("SENSOR_USER_ID", "1"))
+SENSOR_EMAIL = os.getenv("SENSOR_EMAIL", "antoinesimon35270@gmail.com")
+SENSOR_PASSWORD = os.getenv("SENSOR_PASSWORD", "1234")
+
+AUTH_TOKEN: str | None = None
 
 DEMO_PARCELS = [
     {"name": "Champ Nord", "crop_type": "Blé", "area_hectares": 12.5,
@@ -92,8 +96,31 @@ def wait_for_api() -> None:
         time.sleep(5)
 
 
+def auth_headers() -> dict:
+    return {"Authorization": f"Bearer {AUTH_TOKEN}"}
+
+
+def authenticate() -> None:
+    """Le réseau de capteurs s'authentifie comme n'importe quel client de l'API :
+    inscription, ou connexion si le compte de démonstration existe déjà."""
+    global AUTH_TOKEN
+    credentials = {"name": "Antoine", "email": SENSOR_EMAIL, "password": SENSOR_PASSWORD}
+    response = requests.post(f"{API_URL}/api/v1/auth/register", json=credentials, timeout=10)
+    if not response.ok:
+        response = requests.post(
+            f"{API_URL}/api/v1/auth/login",
+            json={"email": SENSOR_EMAIL, "password": SENSOR_PASSWORD},
+            timeout=10,
+        )
+    response.raise_for_status()
+    AUTH_TOKEN = response.json()["access_token"]
+    print("[iot] authentifié auprès de l'API", flush=True)
+
+
 def fetch_parcels() -> list[dict]:
-    response = requests.get(f"{API_URL}/api/v1/parcels", params={"user_id": USER_ID}, timeout=10)
+    response = requests.get(
+        f"{API_URL}/api/v1/parcels", params={"user_id": USER_ID}, headers=auth_headers(), timeout=10
+    )
     response.raise_for_status()
     return response.json()
 
@@ -104,7 +131,7 @@ def seed_demo_parcels() -> list[dict]:
         try:
             requests.post(
                 f"{API_URL}/api/v1/parcels",
-                params={"user_id": USER_ID},
+                headers=auth_headers(),
                 json=parcel,
                 timeout=10,
             ).raise_for_status()
@@ -124,6 +151,7 @@ def build_sensors(parcels: list[dict]) -> list[SensorState]:
 def main() -> None:
     print(f"[iot] simulateur démarré, cible {API_URL}, période {INTERVAL_SECONDS} s", flush=True)
     wait_for_api()
+    authenticate()
 
     parcels = fetch_parcels()
     if not parcels:
