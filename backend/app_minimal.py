@@ -46,6 +46,7 @@ except ImportError:
 from database import get_db, init_db
 from models import User, Parcel, Diagnostic, SensorReading, DiseaseModel
 from routers import alerts, auth, sensors
+from routers.auth import get_current_user
 from schemas.parcels import ParcelIn
 from diseases_data import DISEASES_DB, PLANTVILLAGE_LABELS
 
@@ -159,10 +160,11 @@ async def health():
 @app.post("/api/v1/diagnose")
 async def diagnose(
     file: UploadFile = File(...),
-    user_id: int = None,
     parcel_id: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    user_id = current_user.id
     try:
         contents = await file.read()
     except Exception:
@@ -240,7 +242,10 @@ async def diagnose(
         )
 
 @app.get("/api/v1/history/{user_id}")
-async def get_history(user_id: int, limit: int = 10, db: Session = Depends(get_db)):
+async def get_history(user_id: int, limit: int = 10, db: Session = Depends(get_db),
+                       current_user: User = Depends(get_current_user)):
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Accès refusé à l'historique d'un autre utilisateur")
     diagnostics = db.query(Diagnostic).filter(Diagnostic.user_id == user_id).order_by(Diagnostic.created_at.desc()).limit(limit).all()
     return [
         {
@@ -259,14 +264,20 @@ async def get_history(user_id: int, limit: int = 10, db: Session = Depends(get_d
     ]
 
 @app.delete("/api/v1/history/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def clear_history(user_id: int, db: Session = Depends(get_db)):
+async def clear_history(user_id: int, db: Session = Depends(get_db),
+                         current_user: User = Depends(get_current_user)):
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Accès refusé à l'historique d'un autre utilisateur")
     db.query(Diagnostic).filter(Diagnostic.user_id == user_id).delete()
     db.query(Parcel).filter(Parcel.user_id == user_id).update({Parcel.last_diagnosis: None})
     db.commit()
 
 
 @app.get("/api/v1/parcels")
-async def list_parcels(user_id: int = 1, db: Session = Depends(get_db)):
+async def list_parcels(user_id: int = 1, db: Session = Depends(get_db),
+                        current_user: User = Depends(get_current_user)):
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Accès refusé aux parcelles d'un autre utilisateur")
     parcels = db.query(Parcel).filter(Parcel.user_id == user_id).all()
     return [_parcel_out(p) for p in parcels]
 
@@ -284,9 +295,10 @@ def _parcel_out(parcel: Parcel) -> dict:
 
 
 @app.post("/api/v1/parcels", status_code=status.HTTP_201_CREATED)
-async def create_parcel(payload: ParcelIn, user_id: int = 1, db: Session = Depends(get_db)):
+async def create_parcel(payload: ParcelIn, db: Session = Depends(get_db),
+                         current_user: User = Depends(get_current_user)):
     parcel = Parcel(
-        user_id=user_id,
+        user_id=current_user.id,
         name=payload.name,
         crop_type=payload.crop_type,
         area_hectares=payload.area_hectares,
@@ -300,9 +312,10 @@ async def create_parcel(payload: ParcelIn, user_id: int = 1, db: Session = Depen
 
 
 @app.put("/api/v1/parcels/{parcel_id}")
-async def update_parcel(parcel_id: int, payload: ParcelIn, db: Session = Depends(get_db)):
+async def update_parcel(parcel_id: int, payload: ParcelIn, db: Session = Depends(get_db),
+                         current_user: User = Depends(get_current_user)):
     parcel = db.query(Parcel).filter(Parcel.id == parcel_id).first()
-    if not parcel:
+    if not parcel or parcel.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Parcelle introuvable")
 
     parcel.name = payload.name
@@ -316,9 +329,10 @@ async def update_parcel(parcel_id: int, payload: ParcelIn, db: Session = Depends
 
 
 @app.delete("/api/v1/parcels/{parcel_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_parcel(parcel_id: int, db: Session = Depends(get_db)):
+async def delete_parcel(parcel_id: int, db: Session = Depends(get_db),
+                         current_user: User = Depends(get_current_user)):
     parcel = db.query(Parcel).filter(Parcel.id == parcel_id).first()
-    if not parcel:
+    if not parcel or parcel.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Parcelle introuvable")
 
     db.query(SensorReading).filter(SensorReading.parcel_id == parcel_id).delete()

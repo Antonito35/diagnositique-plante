@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Diagnostic, Parcel, SensorReading
+from models import Diagnostic, Parcel, SensorReading, User
+from routers.auth import get_current_user
 
 router = APIRouter()
 
@@ -73,8 +74,11 @@ def _sensor_alerts(parcel: Parcel, reading: SensorReading) -> list[dict]:
 
 
 @router.get("/{user_id}")
-async def list_alerts(user_id: int, db: Session = Depends(get_db)):
+async def list_alerts(user_id: int, db: Session = Depends(get_db),
+                       current_user: User = Depends(get_current_user)):
     """Alertes croisant les relevés des capteurs et les diagnostics IA."""
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Accès refusé aux alertes d'un autre utilisateur")
     alerts = []
     parcels = db.query(Parcel).filter(Parcel.user_id == user_id).all()
 

@@ -1090,7 +1090,54 @@
 
     <script>
         const API_URL = '';
-        const USER_ID = 1;
+        let USER_ID = null;
+        let AUTH_TOKEN = null;
+
+        function authHeaders(extra) {
+            return Object.assign({ 'Authorization': `Bearer ${AUTH_TOKEN}` }, extra || {});
+        }
+
+        // Compte technique local : pas d'écran de connexion pour l'instant,
+        // mais chaque appareil obtient un vrai jeton JWT et n'accède qu'à ses
+        // propres données (le jeton est vérifié par le serveur sur chaque appel).
+        async function ensureAuth() {
+            const savedToken = localStorage.getItem('pd_token');
+            const savedUserId = localStorage.getItem('pd_user_id');
+            if (savedToken && savedUserId) {
+                try {
+                    const check = await fetch(`${API_URL}/api/v1/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${savedToken}` }
+                    });
+                    if (check.ok) {
+                        AUTH_TOKEN = savedToken;
+                        USER_ID = parseInt(savedUserId, 10);
+                        return;
+                    }
+                } catch (error) {
+                    // jeton illisible ou serveur injoignable : on retente une inscription/connexion
+                }
+            }
+
+            const credentials = { name: 'Agriculteur', email: 'demo@plantdiag.local', password: 'plantdiag-demo-2026' };
+            let response = await fetch(`${API_URL}/api/v1/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            });
+            if (!response.ok) {
+                response = await fetch(`${API_URL}/api/v1/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: credentials.email, password: credentials.password })
+                });
+            }
+            const data = await response.json();
+            AUTH_TOKEN = data.access_token;
+            USER_ID = data.user.id;
+            localStorage.setItem('pd_token', AUTH_TOKEN);
+            localStorage.setItem('pd_user_id', String(USER_ID));
+        }
+
         let selectedParcel = null;
         let allParcels = [];
         let latestSensors = {};
@@ -1115,6 +1162,7 @@
 
         // Load data
         async function loadData() {
+            await ensureAuth();
             loadFavoriteCities();
             await loadParcels();
         }
@@ -1128,8 +1176,8 @@
         async function loadParcels() {
             try {
                 const [parcelsRes, sensorsRes] = await Promise.all([
-                    fetch(`${API_URL}/api/v1/parcels?user_id=${USER_ID}`),
-                    fetch(`${API_URL}/api/v1/sensors/latest?user_id=${USER_ID}`)
+                    fetch(`${API_URL}/api/v1/parcels?user_id=${USER_ID}`, { headers: authHeaders() }),
+                    fetch(`${API_URL}/api/v1/sensors/latest?user_id=${USER_ID}`, { headers: authHeaders() })
                 ]);
                 allParcels = await parcelsRes.json();
                 const sensors = await sensorsRes.json();
@@ -1158,7 +1206,7 @@
             try {
                 const response = await fetch(`${API_URL}/api/v1/parcels?user_id=${USER_ID}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({ name: name, crop_type: cropType })
                 });
                 if (!response.ok) throw new Error('Création refusée');
@@ -1238,7 +1286,7 @@
             try {
                 const response = await fetch(`${API_URL}/api/v1/parcels/${editingParcelId}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({ name: name, crop_type: cropType })
                 });
                 if (!response.ok) throw new Error('Modification refusée');
@@ -1255,7 +1303,10 @@
             if (!confirm('Supprimer cette parcelle, ses diagnostics et ses relevés ?')) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/v1/parcels/${parcelId}`, { method: 'DELETE' });
+                const response = await fetch(`${API_URL}/api/v1/parcels/${parcelId}`, {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
                 if (!response.ok) throw new Error('Suppression refusée');
 
                 await loadParcels();
@@ -1330,6 +1381,7 @@
             try {
                 const response = await fetch(`${API_URL}/api/v1/diagnose?${params}`, {
                     method: 'POST',
+                    headers: authHeaders(),
                     body: formData
                 });
 
@@ -1413,8 +1465,7 @@
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = '<div class="empty-state">Chargement...</div>';
 
-            const userId = 1;
-            fetch(`${API_URL}/api/v1/history/${userId}`)
+            fetch(`${API_URL}/api/v1/history/${USER_ID}`, { headers: authHeaders() })
                 .then(r => r.json())
                 .then(diagnostics => {
                     if (!diagnostics || diagnostics.length === 0) {
@@ -1441,7 +1492,7 @@
             if (!confirm('Supprimer tout l\'historique ? Cette action est irréversible.')) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/v1/history/${USER_ID}`, { method: 'DELETE' });
+                const response = await fetch(`${API_URL}/api/v1/history/${USER_ID}`, { method: 'DELETE', headers: authHeaders() });
                 if (!response.ok) throw new Error('Suppression refusée');
 
                 displayHistory();
@@ -1461,7 +1512,7 @@
             try {
                 const [networkRes, readingsRes] = await Promise.all([
                     fetch(`${API_URL}/api/v1/sensors/network`),
-                    fetch(`${API_URL}/api/v1/sensors/latest?user_id=${USER_ID}`)
+                    fetch(`${API_URL}/api/v1/sensors/latest?user_id=${USER_ID}`, { headers: authHeaders() })
                 ]);
                 const network = await networkRes.json();
                 const readings = await readingsRes.json();
@@ -1552,7 +1603,7 @@
                 // Les alertes terrain sont calculées par le serveur à partir des relevés IoT
                 // et des diagnostics ; la météo dépend de la ville choisie côté client.
                 const [serverRes, weatherRes] = await Promise.all([
-                    fetch(`${API_URL}/api/v1/alerts/${USER_ID}`),
+                    fetch(`${API_URL}/api/v1/alerts/${USER_ID}`, { headers: authHeaders() }),
                     fetch(`${API_URL}/api/v1/weather?latitude=${currentWeatherLat}&longitude=${currentWeatherLon}`)
                 ]);
 

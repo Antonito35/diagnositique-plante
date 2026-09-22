@@ -5,7 +5,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Parcel, SensorReading
+from models import Parcel, SensorReading, User
+from routers.auth import get_current_user
 from schemas.sensors import SensorReadingIn, SensorReadingOut
 
 router = APIRouter()
@@ -36,8 +37,11 @@ async def ingest_reading(payload: SensorReadingIn, db: Session = Depends(get_db)
 
 
 @router.get("/latest")
-async def latest_readings(user_id: int = 1, db: Session = Depends(get_db)):
+async def latest_readings(user_id: int = 1, db: Session = Depends(get_db),
+                           current_user: User = Depends(get_current_user)):
     """Dernier relevé connu pour chaque parcelle de l'utilisateur."""
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Accès refusé aux capteurs d'un autre utilisateur")
     parcels = db.query(Parcel).filter(Parcel.user_id == user_id).all()
 
     results = []
